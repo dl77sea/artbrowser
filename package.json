@@ -1,0 +1,26 @@
+{
+  "name": "artbrowser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "knex.js",
+  "dependencies": {
+    "knex": "^0.13.0",
+    "pg": "^7.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "knex": "knex"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dl77sea/artbrowser.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dl77sea/artbrowser/issues"
+  },
+  "homepage": "https://github.com/dl77sea/artbrowser#readme"
+}
