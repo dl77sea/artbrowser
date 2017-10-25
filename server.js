@@ -22,8 +22,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 //this is where the express/node stuff lives
 app.use(express.static(path.join(__dirname, '/../', 'node_modules')))
 
-app.use('/api/users', require('./routes/users'))
-app.use('/api/boxes', require('./routes/boxes'))
+// app.use('/api/users', require('./routes/users'))
+// app.use('/api/boxes', require('./routes/boxes'))
 
 //handle different errors
 app.use(function (err, req, res, next)  {
@@ -36,5 +36,10 @@ app.use((req, res) => {
   // res.sendStatus(404);
   res.redirect('/')
 });
+
+var port = (process.env.PORT || 5000);
+app.listen(port, function() {
+  console.log("listening on port: ", port)
+})
 
 module.exports = app
