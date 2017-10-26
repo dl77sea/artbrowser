@@ -58,9 +58,7 @@ router.get('/', authenticate, function(req, res, next) {
         'X-Xapp-Token': token
       }
     }
-
     axiosCalls.push(axios(options))
-    console.log('for loop');
   }
   // console.log("axiosCalls: ", axiosCalls)
   Promise.all(axiosCalls).then(function(responses) {
@@ -76,29 +74,33 @@ router.get('/', authenticate, function(req, res, next) {
           description: responses[i].data._embedded.shows[0].description,
           pressRelease: responses[i].data._embedded.shows[0].press_release,
           venueNameHref: responses[i].data._embedded.shows[0]._links.partner.href //figure out better way to store this
-          // venueName: getGalleryName(responseData._embedded.shows[i]._links.partner.href).then(function(response) { return response })
         })
       }
     }
-    // console.log(shows)
-    // res.send(shows)
     return shows;
   })
+  //add venue names to shows objects
   .then(function(shows) {
+    let axiosCalls = [];
     for(let i=0; i < shows.length; i++) {
-
-      console.log(shows[i].venueNameHref)
-      // let strUrl = shows[i].venueNameHref
-      // let options = {
-      //   method: 'GET',
-      //   url: strUrl,
-      //   headers: {
-      //     'X-Xapp-Token': token
-      //   }
-      // }
-
+      let strUrl = shows[i].venueNameHref
+      let options = {
+        method: 'GET',
+        url: strUrl,
+        headers: {
+          'X-Xapp-Token': token
+        }
+      }
+      axiosCalls.push(axios(options))
     }
-    res.send(shows)
+
+    Promise.all(axiosCalls).then(function(responses) {
+      for(let i=0; i < shows.length; i++) {
+        shows[i].venueName = responses[i].data.name
+        // console.log(responses[i].data.name)
+      }
+      res.send(shows)
+    })
   })
   .catch(function(error) { console.log("error: ", error) })
 })
