@@ -49,7 +49,7 @@ router.get('/', authenticate, function(req, res, next) {
   console.log("partners length: ", partners.length)
 
   for (let i = 0; i < partners.length; i++) {
-    console.log("hello")
+
     let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
     let options = {
       method: 'GET',
@@ -81,6 +81,23 @@ router.get('/', authenticate, function(req, res, next) {
       }
     }
     // console.log(shows)
+    // res.send(shows)
+    return shows;
+  })
+  .then(function(shows) {
+    for(let i=0; i < shows.length; i++) {
+
+      console.log(shows[i].venueNameHref)
+      // let strUrl = shows[i].venueNameHref
+      // let options = {
+      //   method: 'GET',
+      //   url: strUrl,
+      //   headers: {
+      //     'X-Xapp-Token': token
+      //   }
+      // }
+
+    }
     res.send(shows)
   })
   .catch(function(error) { console.log("error: ", error) })
