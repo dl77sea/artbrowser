@@ -14,16 +14,14 @@ app.use(cookieParser());
 
 app.use(bodyParser.json())
 
-//"__dirname" is given to us by node
+//back end routes - why does this not work when below public and node modules ??
+app.use('/api/artsy', require('./routes/artsy') )
 
 //this is where public app components (html/js) live
 app.use(express.static(path.join(__dirname, 'public')))
 
 //this is where the express/node stuff lives
 app.use(express.static(path.join(__dirname, '/../', 'node_modules')))
-
-// app.use('/api/users', require('./routes/users'))
-// app.use('/api/boxes', require('./routes/boxes'))
 
 //handle different errors
 app.use(function (err, req, res, next)  {
