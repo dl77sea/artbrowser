@@ -11,15 +11,15 @@
 
     $stateProvider
       .state({
-        name: 'nav',
+        name: 'navigation',
         abstract: true,
-        component: 'navbar'
+        component: 'navigation'
       })
       .state({
-        name: 'posts',
+        name: 'info',
         url: '/',
-        parent: 'nav',
-        component: 'posts'
+        parent: 'navigation',
+        component: 'info'
       })
       // .state({
       //   name: 'admin',

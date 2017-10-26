@@ -1,8 +1,8 @@
 (function() {
   angular.module('app')
-    .component('posts', {
+    .component('info', {
       controller: controller,
-      templateUrl: './posts/posts.template.html'
+      templateUrl: './info/info.template.html'
     })
 
   controller.$inject = ['$state', '$http'];
