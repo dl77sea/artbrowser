@@ -14,8 +14,8 @@ app.use(cookieParser());
 
 app.use(bodyParser.json())
 
-//back end routes - why does this not work when below public and node modules ??
-app.use('/api/artsy', require('./routes/artsy') )
+//routs for refreshing db data - why does this not work when below public and node modules ??
+app.use('/api/refresh', require('./routes/refresh') )
 
 //this is where public app components (html/js) live
 app.use(express.static(path.join(__dirname, 'public')))
