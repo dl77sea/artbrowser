@@ -22,8 +22,8 @@ var partnersSEA = [
 ]
 
 let sea = {
-    name: "Seattle",
-    partners: partnersSEA
+  name: "Seattle",
+  partners: partnersSEA
 }
 
 let cities = {
@@ -61,6 +61,52 @@ function authenticate(req, res, next) {
     });
 }
 
+//pass list of venues to get shows for in req body
+// router.get('/shows', authenticate, function(req, res, next) {
+//   let venues = req.body
+//   console.log(req.body)
+//   res.send("ok")
+// })
+
+//get venue IDs from req.body
+router.post('/shows', authenticate, function(req, res, next) {
+  console.log("hello from /shows")
+  // console.log("/shows req.body: ", req.body)
+
+  let venues = req.body.venues
+
+  let axiosCalls = [];
+
+  for (venue of venues) {
+    let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
+    let options = {
+      method: 'GET',
+      url: strUrl,
+      headers: {
+        'X-Xapp-Token': token
+      }
+    }
+    console.log(strUrl)
+    axiosCalls.push(axios(options))
+  }
+  // console.log(axiosCalls)
+  Promise.all(axiosCalls).then(function(responses) {
+    for (response of responses) {
+      // let show = {}
+      // show.venue = venue.name
+      // show.from =
+      // show.to =
+      // show.name =
+      // show.desc =
+      // show.press =
+      // console.log(response.data)
+    }
+  })
+
+  res.send("okok")
+})
+
+
 router.get('/venues/:id', authenticate, function(req, res, next) {
   console.log("entered /venues")
   let cityId = req.params.id
@@ -96,7 +142,6 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
     })
     .then(function(venuesWithShows) {
       let axiosCalls = []
-      console.log("then venues with shows")
       for (venue of venuesWithShows) {
         let strUrl = venue
         let options = {
@@ -115,16 +160,17 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
           let venues = []
           // let venue = {}
           for (response of responses) {
-            //names.push(response.data.name)
             let venue = {}
+
+            venue.id = response.data.id
             venue.name = response.data.name,
-            venue.city = cityName
+              venue.city = cityName
 
             venues.push(venue)
-            // console.log(response.)
           }
           console.log("venues: ", venues)
           res.send(venues)
+          // return res.json(venues)
         })
         .catch(function(err) {
           console.log("error from promise all get venue names", err)
@@ -135,8 +181,9 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
       console.log("error from get venues promise all: ", err)
       next();
     })
-
 })
+
+
 
 /*
 //add venue names to shows objects
