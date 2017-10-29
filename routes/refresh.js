@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router()
 const knex = require('../knex')
 const axios = require('axios')
+const cheerio = require('cheerio')
+
+const $ = cheerio
 
 
 
@@ -18,12 +21,26 @@ var partnersSEA = [
   "54bfed927261692b4db20100" //Foster/White Gallery
 ]
 
+let sea = {
+    name: "Seattle",
+    partners: partnersSEA
+}
+
+let cities = {
+  sea
+}
+
 var strToken;
 var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
-var partners = partnersSEA;
+// var partners = partnersSEA;
 
 var token;
 var shows = [];
+var regexAutoCompleteQueryArtist = new RegExp(/\bartist\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
+var regexAutoCompleteQueryPhotographer = new RegExp(/\bphotographer\b|\bphotos\b|\bphotography\b/, 'g');
+var artistTypesToCheckFor = ["+p", "+a"];
+var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist];
+
 
 
 // url: "https://api.artsy.net/api/shows?partner_id=" + partners[i] + "&status=running",
@@ -44,6 +61,102 @@ function authenticate(req, res, next) {
     });
 }
 
+router.get('/venues/:id', authenticate, function(req, res, next) {
+  console.log("entered /venues")
+  let cityId = req.params.id
+  console.log("cityId: ", cityId)
+  console.log("cities.cityId: ", cities[cityId])
+
+  var cityName = cities[cityId].name
+  let partners = cities[cityId].partners
+
+  let axiosCalls = [];
+  for (let i = 0; i < partners.length; i++) {
+    let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
+    let options = {
+      method: 'GET',
+      url: strUrl,
+      headers: {
+        'X-Xapp-Token': token
+      }
+    }
+    axiosCalls.push(axios(options))
+  }
+
+  Promise.all(axiosCalls).then(function(responses) {
+      console.log("responses.length: ", responses.length)
+      let venuesWithShows = []
+      for (response of responses) {
+        if (response.data._embedded.shows.length > 0) {
+          venuesWithShows.push(response.data._embedded.shows[0]._links.partner.href)
+        }
+      }
+
+      return venuesWithShows
+    })
+    .then(function(venuesWithShows) {
+      let axiosCalls = []
+      console.log("then venues with shows")
+      for (venue of venuesWithShows) {
+        let strUrl = venue
+        let options = {
+          method: 'GET',
+          url: strUrl,
+          headers: {
+            'X-Xapp-Token': token
+          }
+        }
+        axiosCalls.push(axios(options))
+      }
+
+      Promise.all(axiosCalls).then(function(responses) {
+          // console.log(rresponses)
+          // let names = []
+          let venues = []
+          // let venue = {}
+          for (response of responses) {
+            //names.push(response.data.name)
+            let venue = {}
+            venue.name = response.data.name,
+            venue.city = cityName
+
+            venues.push(venue)
+            // console.log(response.)
+          }
+          console.log("venues: ", venues)
+          res.send(venues)
+        })
+        .catch(function(err) {
+          console.log("error from promise all get venue names", err)
+          next()
+        })
+    })
+    .catch(function(err) {
+      console.log("error from get venues promise all: ", err)
+      next();
+    })
+
+})
+
+/*
+//add venue names to shows objects
+.then(function(shows) {
+  let axiosCalls = [];
+  for (let i = 0; i < shows.length; i++) {
+    let strUrl = shows[i].venueNameHref
+    let options = {
+      method: 'GET',
+      url: strUrl,
+      headers: {
+        'X-Xapp-Token': token
+      }
+    }
+    axiosCalls.push(axios(options))
+  }
+
+venueNameHref: responses[i].data._embedded.shows[j]._links.partner.href //figure out better way to store this
+*/
+/*
 router.get('/', authenticate, function(req, res, next) {
   console.log('entered get')
   // xhr.setRequestHeader('X-Xapp-Token', strToken);
@@ -111,9 +224,13 @@ router.get('/', authenticate, function(req, res, next) {
     //associate possible artists (or none) with shows
     .then(function(shows) {
 
-      // let showNamePsblNames = extractPossibleNames(shows.name)
-      // let showDescPsblNames = extractPossibleNames(shows.description)
-      // let showPresPsblNames = extractPossibleNames(shows.press_release)
+      for (let i = 0; i < shows.length; i++) {
+        shows[i].name_possible_names = extractPossibleNames(shows[i].name)
+        shows[i].description_possible_names = extractPossibleNames(shows[i].description)
+        shows[i].press_release_possible_names = extractPossibleNames(shows[i].press_release)
+        console.log(shows[i].name_possible_names)
+      }
+
 
       //get likely artist names showing in this show.
       //the thinking here is, the most concise list of possible artist names showing in the show,
@@ -124,59 +241,81 @@ router.get('/', authenticate, function(req, res, next) {
       //for each type of artist from filter-in key words, do a google query search
 
       //todo: load these from db
-      // let strCorsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
-      // let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=";
-      //
-      // var regexAutoCompleteQueryArtist = new RegExp(/\bartist\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
-      // var regexAutoCompleteQueryPhotographer = new RegExp(/\bphotographer\b|\bphotos\b|\bphotography\b/, 'g');
-      // var artistTypesToCheckFor = ["+p", "+a"];
-      // var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist];
-      //
-      // let axiosCalls = []
-      //
-      // let strName;
-      // for (let i = 0; i < showNamePsblNames.length; i++) {
-      //   strNme = showNamePsblNames[i]
-      //   for (let j = 0; j < artistTypesToCheckFor.length; j++) {
-      //     let strUrl = strCorsAnywhereUrl + strGoogleQueryBaseUrl + strName.replace(" ", "+") + artistTypesToCheckFor[i];
-      //     let options = {
-      //       method: 'GET',
-      //       url: strUrl
-      //       // headers: {
-      //       //   'X-Xapp-Token': token
-      //       // }
-      //     }
-      //     axiosCalls.push(axios(options))
-      //   }
-      // }
-      // Promise.all(axiosCalls).then(function(responses) {
-      //
-      // })
+      let strCorsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
+      let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=";
 
-      // }) //end query for artist types
+      let axiosCalls = []
+
+      for (let i = 0; i < shows.length; i++) {
+        shows[i].axiosCalls = []
+        for (let j = 0; j < shows[i].name_possible_names.length; j++) {
+          for (let k = 0; k < artistTypesToCheckFor.length; k++) {
+            if (shows[i].name_possible_names.length > 0) {
+              let name = shows[i].name_possible_names[j]
+              let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + artistTypesToCheckFor[k];
+              let options = {
+                method: 'GET',
+                url: strUrl
+              }
+              console.log(strUrl)
+              shows[i].axiosCalls.push(axios(options))
+
+            }
+          }
+        }
+
+      }
       res.send(shows)
+      //return shows
+      // showsToProcess = []
+      // for (let i = 0; i < shows.length; i++) {
+      //   showsToProcess.push(processShows(shows[i]))
+      // }
     })
     .catch(function(error) {
       console.log("error: ", error)
+      next()
     })
+  // .then(function(shows) {
+  //   res.send(shows)
+  // })
 })
-//
-// function extractPossibleNames(str) {
-//   possibleNames = [];
-//   //this will look for person names that are two capitalized contigious strings
-//   //(can be improved with looking for Middle initials, middle names, nobliary particles)
-//   let nameRegExp = new RegExp(/[A-Z][\w-]*\s[A-Z][\w-]*/, 'g');
-//
-//   let possibleName = null;
-//   while ((possibleName = nameRegExp.exec(str)) !== null) {
-//     if (possibleNames.includes(possibleName[0]) === false) {
-//       possibleNames.push(possibleName[0]);
-//     }
-//   }
-//   return possibleNames;
-// }
+*/
+function processShows(show) {
 
+}
 
+function extractPossibleNames(str) {
+  possibleNames = [];
+  //this will look for person names that are two capitalized contigious strings
+  //(can be improved with looking for Middle initials, middle names, nobliary particles)
+  let nameRegExp = new RegExp(/[A-Z][\w-]*\s[A-Z][\w-]*/, 'g');
+
+  let possibleName = null;
+  while ((possibleName = nameRegExp.exec(str)) !== null) {
+    if (possibleNames.includes(possibleName[0]) === false) {
+      possibleNames.push(possibleName[0]);
+    }
+  }
+  return possibleNames;
+}
+
+function isArtist(strXml) {
+  let $xml = $(strXml);
+
+  //iXml test against, set to number of levels deep into xml object to check for string key word matching with regexps
+  for (iXml = 0; iXml < 2; iXml++) {
+    if ($xml.find('suggestion')[iXml] !== undefined) {
+      for (let i = 0; i < artistTypeRegExps.length; i++) {
+        if ($xml.find('suggestion')[iXml].attribs.data.match(artistTypeRegExps[i])) {
+          return true;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+}
 //
 // function checkForNames(responseObject) {
 //   //console.log("entered checkForNames")

@@ -11,16 +11,11 @@
     const vm = this
 
     vm.$onInit = function() {
+      let getCityId = "sea"
 
-      $http.get('/api/refresh')
+      $http.get('/api/refresh/venues/' + getCityId)
         .then(function(response) {
           console.log("response from nav: ", response)
-          //sort responses for menu
-          let venuesWithPossibleArtists = []
-          let venuesWithOutPossibleArtists = []
-
-
-
         })
         .catch(function(error) {
           console.log("error: ", errror)
