@@ -216,18 +216,38 @@ function getArtists(shows, res) {
   //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
   var axiosCalls = []
   for (show of shows) {
-    // show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
-    // show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
+    show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
+    show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
     show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
   }
+
   res.send(shows)
-  //check for possible artists in order of likely succinctness of list containing the show artist name(s)
+  // //check for possible artists in order of likely succinctness of list containing the show artist name(s)
+
+  // if (show.name_calls.length > 0) {
+  //   console.log
+  //   Promise.all(show.name_calls).then(function(responses) {
+  //     //check each response for artist hit
+  //     for (response of responses) {
+  //       console.log(response)
+  //       // if (isArtist(response)) {
+  //       //   console.log("found artist")
+  //       // }
+  //     }
+  //   })
+  // } else if (show.desc_calls.length > 0) {
+  //
+  // } else if (show.press_calsl.length > 0) {
+  //
+  // }
+  // res.send(shows)
 }
-/*
-for (show of shows) {
+
+function appendShowNameCalls(arrNames, shows) {
+  // console.log(arrNames)
+  var axiosCalls = []
   //build a list of network calls to check if name is possible artist
-  axiosCalls = []
-  for (name of show.name_possible_names) {
+  for (name of arrNames) {
     //http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=Chris+Engman+p
     let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
     for (strArtistType of artistTypesToCheckFor) {
@@ -236,30 +256,7 @@ for (show of shows) {
         method: 'GET',
         url: strUrl,
       }
-      console.log(strUrl)
       axiosCalls.push(axios(options))
-    }
-  }
-  show.name_calls = axiosCalls
-}
-*/
-
-function appendShowNameCalls(arrNames, shows) {
-  for (show of shows) {
-    //build a list of network calls to check if name is possible artist
-    axiosCalls = []
-    for (name of arrNames) {
-      //http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=Chris+Engman+p
-      let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
-      for (strArtistType of artistTypesToCheckFor) {
-        let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + strArtistType
-        let options = {
-          method: 'GET',
-          url: strUrl,
-        }
-        console.log(strUrl)
-        axiosCalls.push(axios(options))
-      }
     }
   }
   return axiosCalls
