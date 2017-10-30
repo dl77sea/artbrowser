@@ -15,17 +15,18 @@
 
       $http.get('/api/refresh/venues/' + getCityId)
         .then(function(response) {
-          let venues = response
-          return venues
+          // let venues = response
+          // return venues
+          console.log(response)
         })
-        .then(function(venues) {
-          console.log("venues blarf: ", venues.data)
-          // let submitVenues = "{ venues: "blarf" }"
-          $http.post('/api/refresh/shows', {venues: venues.data})
-            .then(function(responseFromShows) {
-              console.log("response from nav get shows: ", responseFromShows)
-            })
-        })
+        // .then(function(venues) {
+        //   console.log("venues blarf: ", venues.data)
+        //   // let submitVenues = "{ venues: "blarf" }"
+        //   $http.post('/api/refresh/shows', {venues: venues.data})
+        //     .then(function(responseFromShows) {
+        //       console.log("response from nav get shows: ", responseFromShows)
+        //     })
+        // })
         .catch(function(error) {
           console.log("error: ", errror)
         })

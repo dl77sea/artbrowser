@@ -61,52 +61,9 @@ function authenticate(req, res, next) {
     });
 }
 
-//pass list of venues to get shows for in req body
-// router.get('/shows', authenticate, function(req, res, next) {
-//   let venues = req.body
-//   console.log(req.body)
-//   res.send("ok")
-// })
-
-//get venue IDs from req.body
-router.post('/shows', authenticate, function(req, res, next) {
-  console.log("hello from /shows")
-  // console.log("/shows req.body: ", req.body)
-
-  let venues = req.body.venues
-
-  let axiosCalls = [];
-
-  for (venue of venues) {
-    let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
-    let options = {
-      method: 'GET',
-      url: strUrl,
-      headers: {
-        'X-Xapp-Token': token
-      }
-    }
-    console.log(strUrl)
-    axiosCalls.push(axios(options))
-  }
-  // console.log(axiosCalls)
-  Promise.all(axiosCalls).then(function(responses) {
-    for (response of responses) {
-      // let show = {}
-      // show.venue = venue.name
-      // show.from =
-      // show.to =
-      // show.name =
-      // show.desc =
-      // show.press =
-      // console.log(response.data)
-    }
-  })
-
-  res.send("okok")
-})
 
 
+//id = city
 router.get('/venues/:id', authenticate, function(req, res, next) {
   console.log("entered /venues")
   let cityId = req.params.id
@@ -133,6 +90,7 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
       console.log("responses.length: ", responses.length)
       let venuesWithShows = []
       for (response of responses) {
+        //venues includes only venues with current show(s)
         if (response.data._embedded.shows.length > 0) {
           venuesWithShows.push(response.data._embedded.shows[0]._links.partner.href)
         }
@@ -163,14 +121,14 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
             let venue = {}
 
             venue.id = response.data.id
-            venue.name = response.data.name,
-              venue.city = cityName
+            venue.name = response.data.name
+            venue.city = cityName
 
             venues.push(venue)
           }
           console.log("venues: ", venues)
-          res.send(venues)
-          // return res.json(venues)
+
+          getShows(venues)
         })
         .catch(function(err) {
           console.log("error from promise all get venue names", err)
@@ -181,155 +139,130 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
       console.log("error from get venues promise all: ", err)
       next();
     })
-})
 
-
-
-/*
-//add venue names to shows objects
-.then(function(shows) {
-  let axiosCalls = [];
-  for (let i = 0; i < shows.length; i++) {
-    let strUrl = shows[i].venueNameHref
-    let options = {
-      method: 'GET',
-      url: strUrl,
-      headers: {
-        'X-Xapp-Token': token
-      }
-    }
-    axiosCalls.push(axios(options))
-  }
-
-venueNameHref: responses[i].data._embedded.shows[j]._links.partner.href //figure out better way to store this
-*/
-/*
-router.get('/', authenticate, function(req, res, next) {
-  console.log('entered get')
-  // xhr.setRequestHeader('X-Xapp-Token', strToken);
-  var axiosCalls = [];
-  console.log("partners length: ", partners.length)
-
-  for (let i = 0; i < partners.length; i++) {
-
-    let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
-    let options = {
-      method: 'GET',
-      url: strUrl,
-      headers: {
-        'X-Xapp-Token': token
-      }
-    }
-    axiosCalls.push(axios(options))
-  }
-  // console.log("axiosCalls: ", axiosCalls)
-  Promise.all(axiosCalls).then(function(responses) {
-      console.log("promise.all cb")
-      console.log(responses.length)
-      // console.log("promise.all cb responses: ", responses)
-      // console.log(responses[0].data)
-      for (let i = 0; i < responses.length; i++) {
-        console.log(responses[i].data._embedded.shows.length)
-        if (responses[i].data._embedded.shows.length > 0) {
-          for (let j = 0; j < responses[i].data._embedded.shows.length; j++) {
-            shows.push({
-              name: responses[i].data._embedded.shows[j].name,
-              description: responses[i].data._embedded.shows[j].description,
-              pressRelease: responses[i].data._embedded.shows[j].press_release,
-              venueNameHref: responses[i].data._embedded.shows[j]._links.partner.href //figure out better way to store this
-            })
-          }
+  function getShows(venues) {
+    let axiosCalls = [];
+    let shows = {}
+    for (venue of venues) {
+      shows[venue.id] = {}
+      let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
+      let options = {
+        method: 'GET',
+        url: strUrl,
+        headers: {
+          'X-Xapp-Token': token
         }
       }
-      return shows;
-    })
-    //add venue names to shows objects
-    .then(function(shows) {
-      let axiosCalls = [];
-      for (let i = 0; i < shows.length; i++) {
-        let strUrl = shows[i].venueNameHref
+      // shows.push(show)
+      console.log(strUrl)
+      axiosCalls.push(axios(options))
+    }
+    // console.log(axiosCalls)
+
+    //each response contains a list of shows for a given venue
+    Promise.all(axiosCalls).then(function(responses) {
+        let axiosCalls = []
+
+        for (showsResponse of responses) {
+          let venueIdUrl = showsResponse.data._embedded.shows[0]._links.partner.href
+          let venueId = venueIdUrl.slice(venueIdUrl.length - 24, venueIdUrl.length)
+          shows[venueId].shows = []
+
+          for (let i = 0; i < showsResponse.data._embedded.shows.length; i++) {
+            let show = {}
+            show.name = showsResponse.data._embedded.shows[i].name
+            show.from = showsResponse.data._embedded.shows[i].start_at
+            show.to = showsResponse.data._embedded.shows[i].end_at
+            show.desc = showsResponse.data._embedded.shows[i].description
+            show.press = showsResponse.data._embedded.shows[i].press_release
+            show.artsy_venue_id = venueId
+            shows[venueId].shows.push(show)
+          }
+
+        }
+        //reformat shows object for parsing by get artists
+        //(each show for city will be represented as an object in an array)
+        let allShows = []
+        for (venue in shows) {
+          let showsJson = shows[venue]
+          let arrShows = showsJson.shows;
+          for (show of arrShows) {
+            allShows.push(show)
+          }
+        }
+        // res.send(allShows)
+        getArtists(allShows, res)
+      })
+      .catch(function(err) {
+        console.log("error from getShows: ", err)
+        next()
+      })
+  }
+
+})
+
+//why must send res as an argument here but not in getShows?
+function getArtists(shows, res) {
+  //append possible people names to each show object in array
+  for (show of shows) {
+    let possiblePeopleNames = extractPossibleNames(show.name)
+    show.name_possible_names = possiblePeopleNames
+    possiblePeopleNames = extractPossibleNames(show.desc)
+    show.desc_possible_names = possiblePeopleNames
+    possiblePeopleNames = extractPossibleNames(show.press)
+    show.press_possible_names = possiblePeopleNames
+  }
+
+  //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
+  var axiosCalls = []
+  for (show of shows) {
+    // show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
+    // show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
+    show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
+  }
+  res.send(shows)
+  //check for possible artists in order of likely succinctness of list containing the show artist name(s)
+}
+/*
+for (show of shows) {
+  //build a list of network calls to check if name is possible artist
+  axiosCalls = []
+  for (name of show.name_possible_names) {
+    //http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=Chris+Engman+p
+    let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
+    for (strArtistType of artistTypesToCheckFor) {
+      let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + strArtistType
+      let options = {
+        method: 'GET',
+        url: strUrl,
+      }
+      console.log(strUrl)
+      axiosCalls.push(axios(options))
+    }
+  }
+  show.name_calls = axiosCalls
+}
+*/
+
+function appendShowNameCalls(arrNames, shows) {
+  for (show of shows) {
+    //build a list of network calls to check if name is possible artist
+    axiosCalls = []
+    for (name of arrNames) {
+      //http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=Chris+Engman+p
+      let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
+      for (strArtistType of artistTypesToCheckFor) {
+        let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + strArtistType
         let options = {
           method: 'GET',
           url: strUrl,
-          headers: {
-            'X-Xapp-Token': token
-          }
         }
+        console.log(strUrl)
         axiosCalls.push(axios(options))
       }
-
-      return Promise.all(axiosCalls).then(function(responses) {
-        for (let i = 0; i < shows.length; i++) {
-          shows[i].venueName = responses[i].data.name
-          // console.log(responses[i].data.name)
-        }
-        // res.send(shows)
-        return shows;
-      })
-
-    })
-    //associate possible artists (or none) with shows
-    .then(function(shows) {
-
-      for (let i = 0; i < shows.length; i++) {
-        shows[i].name_possible_names = extractPossibleNames(shows[i].name)
-        shows[i].description_possible_names = extractPossibleNames(shows[i].description)
-        shows[i].press_release_possible_names = extractPossibleNames(shows[i].press_release)
-        console.log(shows[i].name_possible_names)
-      }
-
-
-      //get likely artist names showing in this show.
-      //the thinking here is, the most concise list of possible artist names showing in the show,
-      //are likely to turn up in the show name first, followed by the show description,
-      //followed by the press release. So return from finding likely names on first hit(s)
-      //from any of those sources, in that order.
-
-      //for each type of artist from filter-in key words, do a google query search
-
-      //todo: load these from db
-      let strCorsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
-      let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=";
-
-      let axiosCalls = []
-
-      for (let i = 0; i < shows.length; i++) {
-        shows[i].axiosCalls = []
-        for (let j = 0; j < shows[i].name_possible_names.length; j++) {
-          for (let k = 0; k < artistTypesToCheckFor.length; k++) {
-            if (shows[i].name_possible_names.length > 0) {
-              let name = shows[i].name_possible_names[j]
-              let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + artistTypesToCheckFor[k];
-              let options = {
-                method: 'GET',
-                url: strUrl
-              }
-              console.log(strUrl)
-              shows[i].axiosCalls.push(axios(options))
-
-            }
-          }
-        }
-
-      }
-      res.send(shows)
-      //return shows
-      // showsToProcess = []
-      // for (let i = 0; i < shows.length; i++) {
-      //   showsToProcess.push(processShows(shows[i]))
-      // }
-    })
-    .catch(function(error) {
-      console.log("error: ", error)
-      next()
-    })
-  // .then(function(shows) {
-  //   res.send(shows)
-  // })
-})
-*/
-function processShows(show) {
-
+    }
+  }
+  return axiosCalls
 }
 
 function extractPossibleNames(str) {
@@ -363,49 +296,5 @@ function isArtist(strXml) {
     }
   }
 }
-//
-// function checkForNames(responseObject) {
-//   //console.log("entered checkForNames")
-//   //check  gallery object text for names
-//   var strPressReleaseAndDescriptionAndShowName = "";
-//
-//   if (responseObject._embedded.shows.length > 0) {
-//     snarf = responseObject;
-//
-//     var objGallery = {};
-//     //give priority to pres release textstrPressReleaseOrDescription = responseData._embedded.shows.press_description;
-//
-//     strPressReleaseAndDescriptionAndShowName+= responseObject._embedded.shows[0].name;
-//     strPressReleaseAndDescriptionAndShowName+= " "+responseObject._embedded.shows[0].press_release;
-//     strPressReleaseAndDescriptionAndShowName+= " "+responseObject._embedded.shows[0].description;
-//     console.log("strPressReleaseAndDescriptionAndShowName: ", strPressReleaseAndDescriptionAndShowName)
-//     objGallery.showName = responseObject._embedded.shows[0].name;
-//     objGallery.showPressRelease = responseObject._embedded.shows[0].press_release;
-//     objGallery.showDescription = responseObject._embedded.shows[0].description;
-//
-//
-//     if (strPressReleaseAndDescriptionAndShowName !== "") {
-//       console.log(strPressReleaseAndDescriptionAndShowName)
-//       //text info was found so check it for names
-//       let arrayAllNames = [];
-//       arrayAllNames = extractProbableNames(strPressReleaseAndDescriptionAndShowName);
-//
-//       if(arrayAllNames.length > 0) {
-//         //console.log(arrayAllNames)
-//         //names found so..
-//         checkForArtists(arrayAllNames, responseObject, objGallery)
-//       } else {
-//         console.log("no names found from extractProbableNames")
-//       }
-//     } else {
-//       console.log("no name, press release or description text found")
-//     }
-//   } else {
-//     console.log("no shows found")
-//   }
-// }
-//
-
-
 
 module.exports = router
