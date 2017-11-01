@@ -13,7 +13,7 @@
     vm.$onInit = function() {
       let getCityId = "sea"
 
-      $http.get('/api/refresh/venues/' + getCityId)
+      $http.get('/api/refresh/_venues/' + getCityId)
         .then(function(response) {
           // let venues = response
           // return venues

@@ -23,6 +23,7 @@ var partnersSEA = [
 
 let sea = {
   name: "Seattle",
+  knex_id: 1,
   partners: partnersSEA
 }
 
@@ -41,8 +42,6 @@ var regexAutoCompleteQueryPhotographer = new RegExp(/\bphotographer\b|\bphotos\b
 var artistTypesToCheckFor = ["+p", "+a"];
 var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist];
 
-
-
 // url: "https://api.artsy.net/api/shows?partner_id=" + partners[i] + "&status=running",
 // url: strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running",
 
@@ -60,22 +59,19 @@ function authenticate(req, res, next) {
       next()
     });
 }
-
+/*--------------------------------------------------*/
 
 
 //id = city
-router.get('/venues/:id', authenticate, function(req, res, next) {
-  console.log("entered /venues")
+router.get('/city/:id/venues', authenticate, function(req, res, next) {
   let cityId = req.params.id
-  console.log("cityId: ", cityId)
-  console.log("cities.cityId: ", cities[cityId])
-
   var cityName = cities[cityId].name
   let partners = cities[cityId].partners
 
-  let axiosCalls = [];
-  for (let i = 0; i < partners.length; i++) {
-    let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
+  //https://api.artsy.net/api/partners/53d26e7b776f723ccc140100
+  let axiosCalls = []
+  for (partner of partners) {
+    let strUrl = strArtsyApiBaseUrl + "partners/" + partner
     let options = {
       method: 'GET',
       url: strUrl,
@@ -86,120 +82,310 @@ router.get('/venues/:id', authenticate, function(req, res, next) {
     axiosCalls.push(axios(options))
   }
 
-  Promise.all(axiosCalls).then(function(responses) {
-      console.log("responses.length: ", responses.length)
-      let venuesWithShows = []
+  Promise.all(axiosCalls)
+    .then((responses) => {
+      console.log('this happened')
+      let venues = []
       for (response of responses) {
-        //venues includes only venues with current show(s)
-        if (response.data._embedded.shows.length > 0) {
-          venuesWithShows.push(response.data._embedded.shows[0]._links.partner.href)
+        let venue = {
+          artsy_id: response.data.id,
+          name: response.data.name,
+          cities_id: cities[cityId].knex_id
         }
+        venues.push(venue)
+        // console.log(response.data.name)
+        knex('venues')
+          .insert({
+            artsy_id: response.data.id,
+            name: response.data.name,
+            cities_id: cities[cityId].knex_id
+          }, '*')
+          .then((result) => {
+            console.log("knex result: ", result)
+          })
+          .catch((error) => {
+            console.log("knex error", error)
+          })
       }
-
-      return venuesWithShows
+      res.send(venues)
     })
-    .then(function(venuesWithShows) {
-      let axiosCalls = []
-      for (venue of venuesWithShows) {
-        let strUrl = venue
-        let options = {
-          method: 'GET',
-          url: strUrl,
-          headers: {
-            'X-Xapp-Token': token
-          }
-        }
-        axiosCalls.push(axios(options))
-      }
-
-      Promise.all(axiosCalls).then(function(responses) {
-          // console.log(rresponses)
-          // let names = []
-          let venues = []
-          // let venue = {}
-          for (response of responses) {
-            let venue = {}
-
-            venue.id = response.data.id
-            venue.name = response.data.name
-            venue.city = cityName
-
-            venues.push(venue)
-          }
-          console.log("venues: ", venues)
-
-          getShows(venues)
-        })
-        .catch(function(err) {
-          console.log("error from promise all get venue names", err)
-          next()
-        })
+    .catch((error) => {
+      console.log('error from get venues: ', error);
     })
-    .catch(function(err) {
-      console.log("error from get venues promise all: ", err)
-      next();
-    })
+})
 
-  function getShows(venues) {
-    let axiosCalls = [];
-    let shows = {}
-    for (venue of venues) {
-      shows[venue.id] = {}
-      let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
-      let options = {
-        method: 'GET',
-        url: strUrl,
-        headers: {
-          'X-Xapp-Token': token
-        }
-      }
-      // shows.push(show)
-      console.log(strUrl)
-      axiosCalls.push(axios(options))
+router.get('/venue/:id/shows', authenticate, function(req, res, next) {
+  let partner = req.params.id
+
+  let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partner + "&status=running"
+  let options = {
+    method: 'GET',
+    url: strUrl,
+    headers: {
+      'X-Xapp-Token': token
     }
-    // console.log(axiosCalls)
-
-    //each response contains a list of shows for a given venue
-    Promise.all(axiosCalls).then(function(responses) {
-        let axiosCalls = []
-
-        for (showsResponse of responses) {
-          let venueIdUrl = showsResponse.data._embedded.shows[0]._links.partner.href
-          let venueId = venueIdUrl.slice(venueIdUrl.length - 24, venueIdUrl.length)
-          shows[venueId].shows = []
-
-          for (let i = 0; i < showsResponse.data._embedded.shows.length; i++) {
-            let show = {}
-            show.name = showsResponse.data._embedded.shows[i].name
-            show.from = showsResponse.data._embedded.shows[i].start_at
-            show.to = showsResponse.data._embedded.shows[i].end_at
-            show.desc = showsResponse.data._embedded.shows[i].description
-            show.press = showsResponse.data._embedded.shows[i].press_release
-            show.artsy_venue_id = venueId
-            shows[venueId].shows.push(show)
-          }
-
-        }
-        //reformat shows object for parsing by get artists
-        //(each show for city will be represented as an object in an array)
-        let allShows = []
-        for (venue in shows) {
-          let showsJson = shows[venue]
-          let arrShows = showsJson.shows;
-          for (show of arrShows) {
-            allShows.push(show)
-          }
-        }
-        // res.send(allShows)
-        getArtists(allShows, res)
-      })
-      .catch(function(err) {
-        console.log("error from getShows: ", err)
-        next()
-      })
   }
 
+  axios(options).then(function(response) {
+      console.log(response.data)
+      if (response.data._embedded.shows.length > 0) {
+
+        for (show of response.data._embedded.shows) {
+          console.log(show)
+          // res.send(response.data)
+          //52cef4b4b202a321ae0000e0
+          //537cb20d9c18dbb4f90003c1
+          //52b78578139b2159b5000adf
+          knex('shows')
+            .insert({
+              venue_artsy_id: partner,
+              artsy_id: show.id,
+              name: show.name,
+              from: show.start_at,
+              to: show.end_at
+            }, '*')
+            .then((result) => {
+              // console.log("knex result: ", result)
+              res.send(result)
+            })
+            .catch((error) => {
+              console.log("knex error", error)
+              res.send(error)
+            })
+        }
+
+      } else {
+        res.send("no shows")
+      }
+    })
+    .catch(function(error) {
+      console.log("error from /venue/:id/shows/ axios call: ", error)
+    })
 })
+
+router.get('/shows/:id/artists', authenticate, function(req, res, next) {
+
+})
+
+router.get('/artist/:id/images', authenticate, function(req, res, next) {
+
+})
+
+
+
+// //id = city
+// router.get('/shows_by_city/:id', authenticate, function(req, res, next) {
+//     let cityId = req.params.id
+//     // var cityName = cities[cityId].name
+//     let partners = cities[cityId].partners
+//
+//     let axiosCalls = [];
+//     for (partner of partners) {
+//       let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partner + "&status=running"
+//       let options = {
+//         method: 'GET',
+//         url: strUrl,
+//         headers: {
+//           'X-Xapp-Token': token
+//         }
+//       }
+//       axiosCalls.push(axios(options))
+//     }
+//
+//     Promise.all(axiosCalls)
+//       .then((responses) => {
+//           for (let i = 0; i < partners.length; i++) {
+//             // console.log(responses[i].data._embedded.shows.length)
+//             console.log(responses[i].data._embedded.shows.length)
+//             if (responses[i].data._embedded.shows.length > 0) {
+//               for (let j = 0; j < responses[i].data._embedded.shows.length; j++) {
+//
+//                 //   console.log("-------------------------------")
+//
+//                 //     // console.log(responses[i].data._embedded.shows[j])
+//                 //     // console.log("artsy_id: ", partners[i])
+//                 //     // console.log("name: ", responses[i].data._embedded.shows[j].name)
+//                 //     // console.log("from: ", responses[i].data._embedded.shows[j].start_at)
+//                 //     // console.log("to: ", responses[i].data._embedded.shows[j].end_at)
+//                 knex('shows')
+//                   .insert({
+//                     venue_artsy_id: partners[i],
+//                     name: responses[i].data._embedded.shows[j].name,
+//                     from: responses[i].data._embedded.shows[j].start_at,
+//                     to: responses[i].data._embedded.shows[j].end_at
+//                   }, '*')
+//                   .then((result) => {
+//                     // console.log("knex result: ", result)
+//                     // res.send(venues)
+//                   })
+//                   .catch((error) => {
+//                     console.log("knex error", error)
+//                   })
+//               }
+//             } else {
+//               knex('shows')
+//                 .insert({
+//                   venue_artsy_id: partners[i],
+//                   name: null,
+//                   from: null,
+//                   to: null
+//                 }, '*')
+//                 .then((result) => {
+//                   console.log("knex result: ", result)
+//                   // res.send(venues)
+//                 })
+//                 .catch((error) => {
+//                   console.log("knex error", error)
+//                 })
+//             }
+//           }
+//         }
+//       }
+//   })
+//   .catch((error) => {
+//     console.log('error from get shows promise all: ', error);
+//   })
+// })
+//
+//
+// /*--------------------------------------------------*/
+// //id = city
+// router.get('/venues/:id', authenticate, function(req, res, next) {
+//   console.log("entered /venues")
+//   let cityId = req.params.id
+//   console.log("cityId: ", cityId)
+//   console.log("cities.cityId: ", cities[cityId])
+//
+//   var cityName = cities[cityId].name
+//   let partners = cities[cityId].partners
+//
+//   let axiosCalls = [];
+//   for (let i = 0; i < partners.length; i++) {
+//     let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
+//     let options = {
+//       method: 'GET',
+//       url: strUrl,
+//       headers: {
+//         'X-Xapp-Token': token
+//       }
+//     }
+//     axiosCalls.push(axios(options))
+//   }
+//
+//   Promise.all(axiosCalls).then(function(responses) {
+//       console.log("responses.length: ", responses.length)
+//       let venuesWithShows = []
+//       for (response of responses) {
+//         //venues includes only venues with current show(s)
+//         if (response.data._embedded.shows.length > 0) {
+//           venuesWithShows.push(response.data._embedded.shows[0]._links.partner.href)
+//         }
+//       }
+//
+//       return venuesWithShows
+//     })
+//     .then(function(venuesWithShows) {
+//       let axiosCalls = []
+//       for (venue of venuesWithShows) {
+//         let strUrl = venue
+//         let options = {
+//           method: 'GET',
+//           url: strUrl,
+//           headers: {
+//             'X-Xapp-Token': token
+//           }
+//         }
+//         axiosCalls.push(axios(options))
+//       }
+//
+//       Promise.all(axiosCalls).then(function(responses) {
+//           // console.log(rresponses)
+//           // let names = []
+//           let venues = []
+//           // let venue = {}
+//           for (response of responses) {
+//             let venue = {}
+//
+//             venue.id = response.data.id
+//             venue.name = response.data.name
+//             venue.city = cityName
+//
+//             venues.push(venue)
+//           }
+//           console.log("venues: ", venues)
+//
+//           getShows(venues)
+//         })
+//         .catch(function(err) {
+//           console.log("error from promise all get venue names", err)
+//           next()
+//         })
+//     })
+//     .catch(function(err) {
+//       console.log("error from get venues promise all: ", err)
+//       next();
+//     })
+//
+//   function getShows(venues) {
+//     let axiosCalls = [];
+//     let shows = {}
+//     for (venue of venues) {
+//       shows[venue.id] = {}
+//       let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
+//       let options = {
+//         method: 'GET',
+//         url: strUrl,
+//         headers: {
+//           'X-Xapp-Token': token
+//         }
+//       }
+//       // shows.push(show)
+//       console.log(strUrl)
+//       axiosCalls.push(axios(options))
+//     }
+//     // console.log(axiosCalls)
+//
+//     //each response contains a list of shows for a given venue
+//     Promise.all(axiosCalls).then(function(responses) {
+//         let axiosCalls = []
+//
+//         for (showsResponse of responses) {
+//           let venueIdUrl = showsResponse.data._embedded.shows[0]._links.partner.href
+//           let venueId = venueIdUrl.slice(venueIdUrl.length - 24, venueIdUrl.length)
+//           shows[venueId].shows = []
+//
+//           for (let i = 0; i < showsResponse.data._embedded.shows.length; i++) {
+//             let show = {}
+//             show.name = showsResponse.data._embedded.shows[i].name
+//             show.from = showsResponse.data._embedded.shows[i].start_at
+//             show.to = showsResponse.data._embedded.shows[i].end_at
+//             show.desc = showsResponse.data._embedded.shows[i].description
+//             show.press = showsResponse.data._embedded.shows[i].press_release
+//             show.artsy_venue_id = venueId
+//             shows[venueId].shows.push(show)
+//           }
+//
+//         }
+//         //reformat shows object for parsing by get artists
+//         //(each show for city will be represented as an object in an array)
+//         let allShows = []
+//         for (venue in shows) {
+//           let showsJson = shows[venue]
+//           let arrShows = showsJson.shows;
+//           for (show of arrShows) {
+//             allShows.push(show)
+//           }
+//         }
+//         // res.send(allShows)
+//         getArtists(allShows, res)
+//       })
+//       .catch(function(err) {
+//         console.log("error from getShows: ", err)
+//         next()
+//       })
+//   }
+//
+// })
 
 //why must send res as an argument here but not in getShows?
 function getArtists(shows, res) {
@@ -216,14 +402,22 @@ function getArtists(shows, res) {
   //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
   var axiosCalls = []
   for (show of shows) {
-    show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
+    //show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
     show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
-    show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
+    //show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
   }
 
   res.send(shows)
   // //check for possible artists in order of likely succinctness of list containing the show artist name(s)
+  let AllPromises = []
+  for (show of shows) {
+    AllPromises.push(Promise.all(show.name_calls))
 
+  }
+
+  Promise.all(AllPromises).then((res) => {
+    console.log('??????', res);
+  })
   // if (show.name_calls.length > 0) {
   //   console.log
   //   Promise.all(show.name_calls).then(function(responses) {
@@ -293,5 +487,7 @@ function isArtist(strXml) {
     }
   }
 }
+
+
 
 module.exports = router
