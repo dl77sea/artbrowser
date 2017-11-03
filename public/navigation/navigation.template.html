@@ -17,14 +17,21 @@
             <li><a href="#!"><i class="material-icons">view_module</i>four</a></li>
             <li><a href="#!"><i class="material-icons">cloud</i>five</a></li>
           </ul>
+
+          <div ng-repeat="box in $ctrl.curBoxes track by $index" class="col s4">
+    <div style="position: relative; width: 235px; height: 235px; margin: auto">
+      <p class="textoverlay" style="position: absolute; margin-left: 10px; margin-top: 10px; margin-right: 10px; padding: 0; top: 0px">Box id No. {{ box.id }}</p>
+      <p class="textoverlay" style="position: absolute; bottom: 0px; right: 0px; margin-right: 10px; margin-bottom: 10px">by {{ box.email }}</p>
+      <canvas-init></canvas-init>
+
           -->
 
           <div class="dropdown">
             <button class="dropbtn">Dropdown</button>
             <div class="dropdown-content">
-              <p class="dropdown-item" href="#">Link link link link 1</p>
-              <p class="dropdown-item" href="#">Link 2</p>
-              <p class="dropdown-item" href="#">Link 3</p>
+              <p ng-repeat="venue in $ctrl.venues track by $index" ng-click="$ctrl.retrieveShowsByVenue(venue.artsy_id)" class="dropdown-item" href="#">{{venue.name}}</p>
+              <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}}-->
+              <!-- <p class="dropdown-item" href="#">Link 3</p> -->
             </div>
           </div>
 

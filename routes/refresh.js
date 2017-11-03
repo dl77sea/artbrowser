@@ -1,3 +1,5 @@
+// 'use strict';
+
 const express = require('express')
 const router = express.Router()
 const knex = require('../knex')
@@ -38,9 +40,10 @@ var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
 var token;
 var shows = [];
 var regexAutoCompleteQueryArtist = new RegExp(/\bartist\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
+var regexAutoCompleteQueryArt = new RegExp(/\bart\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
 var regexAutoCompleteQueryPhotographer = new RegExp(/\bphotographer\b|\bphotos\b|\bphotography\b/, 'g');
 var artistTypesToCheckFor = ["+p", "+a"];
-var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist];
+var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist, regexAutoCompleteQueryArt];
 
 // url: "https://api.artsy.net/api/shows?partner_id=" + partners[i] + "&status=running",
 // url: strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running",
@@ -60,7 +63,66 @@ function authenticate(req, res, next) {
     });
 }
 /*--------------------------------------------------*/
+//refresh/allcities/venues
+//promise all
+//over cities table
+//insert venues
 
+//refresh/allvenues/shows
+//promise.all
+//over venues table
+//insert shows
+router.get('/allvenues/shows', function(req, res, next) {
+  //itterate over venues
+  let promiseCalls = []
+  knex('venues').select('artsy_id')
+    .then(function(venues) {
+      for (let venue of venues) {
+        // console.log("snarf: ", venue.artsy_id)
+        let strUrl = 'http://localhost:5000/api/refresh/venue/' + venue.artsy_id + '/shows'
+        let options = {
+          method: 'GET',
+          url: strUrl,
+        }
+        promiseCalls.push(axios(options))
+      }
+      return Promise.all(promiseCalls)
+    })
+    .then(function(results) {
+      res.send("allvenues/shows Promise.all completed")
+    })
+    .catch(function(error) {
+      console.log("error from /allvenues/shows: ", error)
+
+      res.send(false)
+    })
+})
+
+router.get('/allvenues/artists', function(req, res, next) {
+  let promiseCalls = []
+  knex('shows').select('artsy_id')
+    .then(function(shows) {
+      for (let show of shows) {
+        console.log("/allvenues/artists: shows artsy_id: ", show.artsy_id)
+        let strUrl = 'http://localhost:5000/api/refresh/show/' + show.artsy_id + '/artists'
+        let options = {
+          method: 'GET',
+          url: strUrl
+        }
+        console.log(strUrl)
+        promiseCalls.push(axios(options))
+      }
+      console.log("allvenues/artists/", promiseCalls.length)
+      return Promise.all(promiseCalls)
+    })
+    .then(function(results) {
+      res.send("allvenues/artists Promise.all completed")
+    })
+    .catch(function(error) {
+      console.log("error from /allvenues/shows: ", error)
+      res.send(false)
+    })
+})
 
 //id = city
 router.get('/city/:id/venues', authenticate, function(req, res, next) {
@@ -104,7 +166,7 @@ router.get('/city/:id/venues', authenticate, function(req, res, next) {
             console.log("knex result: ", result)
           })
           .catch((error) => {
-            console.log("knex error", error)
+            console.log("knex error from /city/:id/venues")
           })
       }
       res.send(venues)
@@ -116,8 +178,12 @@ router.get('/city/:id/venues', authenticate, function(req, res, next) {
 
 router.get('/venue/:id/shows', authenticate, function(req, res, next) {
   let partner = req.params.id
-
+  console.log("entered venue/id/shows: ", partner)
+  //https://api.artsy.net/api/shows?partner_id=
+  //var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
+  //https://api.artsy.net/api/shows?partner_id=52b78578139b2159b5000adf&status=running
   let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partner + "&status=running"
+  console.log("strUrl from /venue/id/shows: ", strUrl)
   let options = {
     method: 'GET',
     url: strUrl,
@@ -126,60 +192,156 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
     }
   }
 
-  axios(options).then(function(response) {
-      console.log(response.data)
+  axios(options)
+    .then(function(response) {
+      console.log("this is the response from axios in venue/id/shows: ")
+      console.log(response.data._embedded.shows.length)
       if (response.data._embedded.shows.length > 0) {
-
+        // console.log("here: ", response.data._embedded.shows.length)
+        // console.log("************")
+        // console.log(response.data._embedded.shows)
+        //       venue_artsy_id: partner,
+        //       artsy_id: show.id,
+        //       name: show.name,
+        //       from: show.start_at,
+        //       to: show.end_at
+        let shows = [];
         for (show of response.data._embedded.shows) {
-          console.log(show)
-          // res.send(response.data)
-          //52cef4b4b202a321ae0000e0
-          //537cb20d9c18dbb4f90003c1
-          //52b78578139b2159b5000adf
-          knex('shows')
-            .insert({
-              venue_artsy_id: partner,
-              artsy_id: show.id,
-              name: show.name,
-              from: show.start_at,
-              to: show.end_at
-            }, '*')
-            .then((result) => {
-              // console.log("knex result: ", result)
-              res.send(result)
-            })
-            .catch((error) => {
-              console.log("knex error", error)
-              res.send(error)
-            })
+          // console.log("************")
+          // console.log(show.id)
+          // console.log(show.description)
+          // console.log(show.press_release)
+          // show.description = 'A selection of landscape paintings by Seattle artist, Philip Govedare that are derived '
+          // show.press_release = 'A selection of landscape paintings by Seattle artist, Philip Govedare that are derived from sites'
+          // console.log("************")
+          let newShow = {
+            venue_artsy_id: partner,
+            artsy_id: show.id,
+            name: show.name,
+            // description: show.description,
+            // press_release: show.press_release,
+            from: show.start_at,
+            to: show.end_at
+          }
+          shows.push(newShow)
         }
-
+        return knex.insert(shows).into('shows')
       } else {
-        res.send("no shows")
+        return
       }
     })
+    .then(function(result) {
+      res.send(true)
+    })
     .catch(function(error) {
-      console.log("error from /venue/:id/shows/ axios call: ", error)
+      console.log("error from axios catch on /venue/:id/shows/")
+      res.send(false)
     })
 })
 
-router.get('/shows/:id/artists', authenticate, function(req, res, next) {
-  knex('shows').select()
+router.get('/show/:id/artists', authenticate, function(req, res, next) {
+  console.log("entered /show/:id/artists")
+  let showId = req.params.id
+  console.log(showId)
+  knex('shows').where('artsy_id', showId)
     .then(function(result) {
       console.log(result)
       let show = result[0]
+
       if (show.name !== null) {
         let possibleNames = extractPossibleNames(show.name)
+        // possibleNames = ['Distant Places', 'Pablo Picasso', 'Philip Govedare']
+        console.log("FOUND NAMES IN NAMES")
+        console.log("-----possibleNames from show/id/artists: ", possibleNames)
         let axiosCalls = getGqsCalls(possibleNames)
         Promise.all(axiosCalls)
           .then(function(results) {
-            let names = checkForArtists(possibleNames.length, results)
-            res.send(names)
+            let names = checkForArtists(possibleNames, results)
+
+            let artists = [];
+            if (names.length > 0) {
+
+              for (let name of names) {
+                let artist = {
+                  name: name,
+                  relevant: true,
+                  artsy_show_id: showId,
+                  image_urls: {
+                    images: "blarf"
+                  }
+                }
+                console.log("artist: ", artist)
+                artists.push(artist)
+              }
+              return knex.insert(artists).into('artists')
+            } else {
+              return
+            }
+          })
+          .then(function(result) {
+            res.send(true)
           })
           .catch(function(error) {
-            res.send(error)
+            console.log(error)
+            res.send(false)
           })
+      } else if (show.description !== null) {
+        let possibleNames = extractPossibleNames(show.description)
+        let axiosCalls = getGqsCalls(possibleNames)
+        Promise.all(axiosCalls)
+          .then(function(results) {
+            let names = checkForArtists(possibleNames, results)
+
+            let artists = [];
+            for (let name of names) {
+
+              let artist = {
+                first_name: name.split(' ')[0],
+                last_name: name.split(' ')[1]
+              }
+              artists.push(artist)
+            }
+            return knex.insert(artists).into('artists')
+          })
+          .then(function(result) {
+            res.send(true)
+          })
+          .catch(function(error) {
+            res.send(false)
+          })
+      } else if (show.press_release !== null) {
+        let possibleNames = extractPossibleNames(show.press_release)
+        let axiosCalls = getGqsCalls(possibleNames)
+        Promise.all(axiosCalls)
+          .then(function(results) {
+            let names = checkForArtists(possibleNames, results)
+
+            let artists = [];
+            for (let name of names) {
+
+              let artist = {
+                first_name: name.split(' ')[0],
+                last_name: name.split(' ')[1]
+              }
+              artists.push(artist)
+            }
+            return knex.insert(artists).into('artists')
+          })
+          .then(function(result) {
+            res.send(true)
+          })
+          .catch(function(error) {
+            res.send(false)
+          })
+      } else {
+        console.log("no names found for this show")
+        res.send(false)
       }
+
+    })
+    .catch(function(error) {
+      console.log("catch bad knex query from /shows/id/artists: ", error)
+      res.send(error)
     })
 })
 
@@ -187,17 +349,27 @@ router.get('/artist/:id/images', authenticate, function(req, res, next) {
 
 })
 
-function checkForArtists(numPossibleNames, gqsResults) {
-  // console.log("checkForArtists entered", gqsResults)
+//check xml results from GQS for artist hits
+function checkForArtists(possibleNames, gqsResults) {
+  numPossibleNames = possibleNames.length
+  // console.log("-------")
+  // console.log("-----possibleNames from checkForArtists: ", possibleNames)
+  // console.log("checkForArtists entered. gqsResults: ")
+  // for (result of gqsResults)
+  //   console.log(result.data)
+  // console.log("-------")
+
   let artists = []
-  for (let i = 0; i < numPossibleNames; i++) {
-    for (let j = 0; j < artistTypesToCheckFor.length; j++) {
-      console.log("checkForArtists xml: ", j)
-      let gqsXml = gqsResults[(i * artistTypesToCheckFor.length) + j].data
-      console.log("checkForArtists xml: ", gqsXml)
+  for (let iPossibleName = 0; iPossibleName < numPossibleNames; iPossibleName++) {
+    for (let iType = 0; iType < artistTypesToCheckFor.length; iType++) {
+      // console.log("checkForArtists iType: ", iType)
+      let gqsXml = gqsResults[(iPossibleName * artistTypesToCheckFor.length) + iType].data
+      // console.log("checkForArtists xml: ", gqsXml)
       if (isArtist(gqsXml)) {
-        artists.push(possibleNames[i])
+        // console.log("found here: ", possibleNames)
+        artists.push(possibleNames[iPossibleName])
       }
+
     }
   }
   return artists
@@ -207,11 +379,11 @@ function getGqsCalls(possibleNames) {
   console.log("possibleNames ", possibleNames)
   var axiosCalls = []
   //build a list of network calls to check if name is possible artist
-  for (name of possibleNames) {
+  for (const possibleName of possibleNames) {
     //http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=Chris+Engman+p
     let strGoogleQueryBaseUrl = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
-    for (strArtistType of artistTypesToCheckFor) {
-      let strUrl = strGoogleQueryBaseUrl + name.replace(" ", "+") + strArtistType
+    for (const strArtistType of artistTypesToCheckFor) {
+      let strUrl = strGoogleQueryBaseUrl + possibleName.replace(" ", "+") + strArtistType
       let options = {
         method: 'GET',
         url: strUrl,
@@ -489,7 +661,7 @@ function getArtists(shows, res) {
 
 
 function extractPossibleNames(str) {
-  possibleNames = [];
+  let possibleNames = [];
   //this will look for person names that are two capitalized contigious strings
   //(can be improved with looking for Middle initials, middle names, nobliary particles)
   let nameRegExp = new RegExp(/[A-Z][\w-]*\s[A-Z][\w-]*/, 'g');

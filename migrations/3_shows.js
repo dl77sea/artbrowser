@@ -3,8 +3,8 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTable('shows', (table) => {
     table.increments();
     table.string('name')
-    table.string('press_release')
-    table.string('description')
+    table.text('press_release')
+    table.text('description')
     table.timestamp('from')
     table.timestamp('to')
     table.string('artsy_id').unique()
