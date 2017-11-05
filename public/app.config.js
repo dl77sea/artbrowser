@@ -19,7 +19,7 @@
         name: 'info',
         url: '/',
         parent: 'navigation',
-        component: 'info'
+        component: 'infoVenue'
       })
       // .state({
       //   name: 'admin',
