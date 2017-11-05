@@ -6,13 +6,15 @@
       bindings: {venueName: '='}
     })
 
-  controller.$inject = ['$state', '$http'];
+  controller.$inject = ['$state', '$http', 'retrieveService'];
 
-  function controller($state, $http) {
+  function controller($state, $http, retrieveService) {
     const vm = this
-    vm.shows = [{name: "show1"},{name: "show2"}]
-    vm.$onInit = function() {
 
+    vm.$onInit = function() {
+      //instigate populating shows for curret venue, to trigger repeat per show
+      // retrieveService.get
+      vm.shows = [{name: "show1"},{name: "show2"}]
     }
   }
 }());

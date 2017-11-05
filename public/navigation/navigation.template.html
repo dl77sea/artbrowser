@@ -29,7 +29,7 @@
           <div class="dropdown">
             <button class="dropbtn">Dropdown</button>
             <div class="dropdown-content">
-              <p ng-repeat="venue in $ctrl.venues track by $index" ng-click="$ctrl.retrieveShowsByVenue(venue.artsy_id)" class="dropdown-item" href="#">{{venue.name}}</p>
+              <p ng-repeat="venue in $ctrl.venues track by $index" ng-click="$ctrl.clickVenueItem(venue.artsy_id)" class="dropdown-item" href="#">{{venue.name}}</p>
               <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}}-->
               <!-- <p class="dropdown-item" href="#">Link 3</p> -->
             </div>
@@ -45,6 +45,8 @@
 </header>
 <main>
   <div class="container">
-    <ui-view></ui-view>
+    <!-- why use ui-view here instead of just <info-venue>-->
+    <!-- <ui-view venues="venues"></ui-view> -->
+    <ui-view venues-navigation="$ctrl.testven"></ui-view>
   </div>
 </main>

@@ -10,9 +10,10 @@
 
   function controller($state, $http) {
     const vm = this
-    vm.artists = [{name: "artist1"},{name: "artist2"}]
-    vm.$onInit = function() {
 
+    vm.$onInit = function() {
+      //instigate populating artists for curret show, to trigger repeat per show
+      vm.artists = [{name: "artist1"},{name: "artist2"}]
     }
   }
 }());
