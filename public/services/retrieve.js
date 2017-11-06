@@ -56,12 +56,19 @@ function retrieveService($http) {
   }
 
   this.getShowsByVenue = function(venueId) {
-    return $http.get('/venue/' + venueId + '/shows')
+    return $http.get('/api/retrieve/venue/' + venueId + '/shows')
       .then(function(responseShows) {
         return responseShows.data
       })
-      .catch(function(error) {
-        return error
+  }
+
+  this.getArtistsByShow = function(showId) {
+    console.log("check getArtistsByShow gets called venuId: ", showId)
+    return $http.get('/api/retrieve/show/' + showId + '/artists')
+      .then(function(responseArtists) {
+        console.log("this happened from getArtistsByShow: ", responseArtists)
+        return responseArtists.data
       })
   }
+
 }

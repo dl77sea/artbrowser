@@ -7,18 +7,18 @@
     })
 
 
-  controller.$inject = ['$state', '$http', 'retrieveService', 'currentService'];
+  controller.$inject = ['$state', '$http', 'retrieveService', 'currentService', '$scope'];
 
-  function controller($state, $http, retrieveService, currentService) {
+  function controller($state, $http, retrieveService, currentService, $scope) {
     const vm = this
     vm.venues = [];
 
     vm.$onInit = function() {
       let venues;
       let testven = "blarffy"
-      let cityId = "sea"
+      let cityId = currentService.cityId
 
-      //return venues by city from venues table
+      //return venues with shows by city from venues table
       retrieveService.getVenues(cityId)
         .then(function(venuesResponse) {
           console.log(venuesResponse)

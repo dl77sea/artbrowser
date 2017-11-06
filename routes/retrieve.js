@@ -33,7 +33,7 @@ router.get('/venue/:id/shows', function(req, res, next) {
   let venueId = req.params.id
   knex('shows').where('venue_artsy_id', venueId)
     .then(function(shows) {
-      console.log(shows)
+      console.log("check this from venue/id/shows: ", shows)
       res.send(shows)
     })
     .catch(function(error) {
@@ -44,6 +44,7 @@ router.get('/venue/:id/shows', function(req, res, next) {
 
 router.get('/show/:id/artists', function(req, res, next) {
   let showId = req.params.id
+  console.log("from show/id/artists: ", showId)
   knex('artists').where('artsy_show_id', showId)
     .then(function(artists) {
       res.send(artists)

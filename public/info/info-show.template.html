@@ -1,11 +1,8 @@
 
   <!-- {{show.name}} -->
-<p>from info-show: {{$ctrl.venueName}}</p>
+<p>from info-show: {{$ctrl.venueArtsyId}}</p>
 
 <div ng-repeat="show in $ctrl.shows">
-
-  <p>{{show.name}}</p>
-  <!--showName passed to info-artist through binding-->
-  <info-artist show-name="show.name"></info-artist>
-
+  <p>show name: {{show.name}}</p>
+  <info-artist show-artsy-id="show.artsy_id"></info-artist>
 </div>

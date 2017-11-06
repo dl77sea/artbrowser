@@ -5,8 +5,7 @@
 <p>hello</p>
 
 <!-- {{$ctrl.venues}} gets passed to nested view through binding-->
-<p>value of venuesNavigation: {{$ctrl.venuesNavigation}}</p><!--why doesn't this work-->
 <div ng-repeat="venue in $ctrl.venues">
   <p>{{venue.name}}</p>
-  <info-show venue-name="venue.name"></info-show>
+  <info-show venue-artsy-id="venue.artsy_id"></info-show>
 </div>

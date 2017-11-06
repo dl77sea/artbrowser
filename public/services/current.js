@@ -2,16 +2,15 @@ angular
   .module('app')
   .service('currentService', currentService)
 
-// retrieveService.$inject = ['$http'];
+// currentService.$inject = ['$scope'];
 
 function currentService() {
-
-  //venues with shows
   this.venues;
-  // ths.currentVenue
+  this.cityId = "sea" //default
 
-  // this.getVenues = function(cityId) {
-  //   return $http.get('/api/retrieve/city/' + cityId + '/venues')
+  // setVenues(venues) = function(venues) {
+  //   this.venues = venues;
+  //   // $scope.$broadcast('venuesListener', this.venues);
   // }
 
 }
