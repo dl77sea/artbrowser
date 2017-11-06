@@ -5,6 +5,7 @@ exports.up = function(knex, Promise) {
     table.string('name').unique()
     table.json('image_urls')
     table.string('artsy_show_id')
+    table.string('found_on')
     table.boolean('relevant')
   })
 };

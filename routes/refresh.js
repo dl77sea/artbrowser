@@ -239,6 +239,7 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
     })
 })
 
+//inserts an artist(s) into artists table by artsy show id
 router.get('/show/:id/artists', authenticate, function(req, res, next) {
   console.log("entered /show/:id/artists")
   let showId = req.params.id
@@ -254,16 +255,23 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
         console.log("FOUND NAMES IN NAMES")
         console.log("-----possibleNames from show/id/artists: ", possibleNames)
         let axiosCalls = getGqsCalls(possibleNames)
+        // console.log("num getGqsCalls: " axiosCalls.length)
+        //Google Query Search for possible artists from possible names
+        //and insert the possible artists into artists table
         Promise.all(axiosCalls)
-          .then(function(results) {
-            let names = checkForArtists(possibleNames, results)
+          .then(function(gqsResults) {
+            //gqsResults in same order as possibleNames
+            //checkForArtists returns array of objects of names and GQS search string name found to be artist on
+
+            let arrArtistObjs = checkForArtists(possibleNames, gqsResults)
 
             let artists = [];
-            if (names.length > 0) {
+            if (arrArtistObjs.length > 0) {
 
-              for (let name of names) {
+              for (let artistObj of arrArtistObjs) {
                 let artist = {
-                  name: name,
+                  name: artistObj.name,
+                  found_on: artistObj.found_on,
                   relevant: true,
                   artsy_show_id: showId,
                   image_urls: {
@@ -273,6 +281,7 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
                 console.log("artist: ", artist)
                 artists.push(artist)
               }
+              //insert one artistObj at a time into artists table
               return knex.insert(artists).into('artists')
             } else {
               return
@@ -345,33 +354,27 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
     })
 })
 
-router.get('/artist/:id/images', authenticate, function(req, res, next) {
-
-})
+// router.get('/artist/:id/images', authenticate, function(req, res, next) {
+//
+// })
 
 //check xml results from GQS for artist hits
+//return it to
 function checkForArtists(possibleNames, gqsResults) {
   numPossibleNames = possibleNames.length
-  // console.log("-------")
-  // console.log("-----possibleNames from checkForArtists: ", possibleNames)
-  // console.log("checkForArtists entered. gqsResults: ")
-  // for (result of gqsResults)
-  //   console.log(result.data)
-  // console.log("-------")
+  console.log("numPossibleNames: ", numPossibleNames)
 
   let artists = []
   for (let iPossibleName = 0; iPossibleName < numPossibleNames; iPossibleName++) {
     for (let iType = 0; iType < artistTypesToCheckFor.length; iType++) {
-      // console.log("checkForArtists iType: ", iType)
       let gqsXml = gqsResults[(iPossibleName * artistTypesToCheckFor.length) + iType].data
-      // console.log("checkForArtists xml: ", gqsXml)
       if (isArtist(gqsXml)) {
-        // console.log("found here: ", possibleNames)
-        artists.push(possibleNames[iPossibleName])
+        artists.push( {name: possibleNames[iPossibleName], found_on: artistTypesToCheckFor[iType]} )
+        iType = artistTypesToCheckFor.length //avoid duplicate pushes on multiple type hits
       }
-
     }
   }
+  console.log("length of artists obj array: ", artists.length)
   return artists
 }
 
@@ -395,271 +398,57 @@ function getGqsCalls(possibleNames) {
   return axiosCalls
 }
 
-// //id = city
-// router.get('/shows_by_city/:id', authenticate, function(req, res, next) {
-//     let cityId = req.params.id
-//     // var cityName = cities[cityId].name
-//     let partners = cities[cityId].partners
-//
-//     let axiosCalls = [];
-//     for (partner of partners) {
-//       let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partner + "&status=running"
-//       let options = {
-//         method: 'GET',
-//         url: strUrl,
-//         headers: {
-//           'X-Xapp-Token': token
-//         }
-//       }
-//       axiosCalls.push(axios(options))
-//     }
-//
-//     Promise.all(axiosCalls)
-//       .then((responses) => {
-//           for (let i = 0; i < partners.length; i++) {
-//             // console.log(responses[i].data._embedded.shows.length)
-//             console.log(responses[i].data._embedded.shows.length)
-//             if (responses[i].data._embedded.shows.length > 0) {
-//               for (let j = 0; j < responses[i].data._embedded.shows.length; j++) {
-//
-//                 //   console.log("-------------------------------")
-//
-//                 //     // console.log(responses[i].data._embedded.shows[j])
-//                 //     // console.log("artsy_id: ", partners[i])
-//                 //     // console.log("name: ", responses[i].data._embedded.shows[j].name)
-//                 //     // console.log("from: ", responses[i].data._embedded.shows[j].start_at)
-//                 //     // console.log("to: ", responses[i].data._embedded.shows[j].end_at)
-//                 knex('shows')
-//                   .insert({
-//                     venue_artsy_id: partners[i],
-//                     name: responses[i].data._embedded.shows[j].name,
-//                     from: responses[i].data._embedded.shows[j].start_at,
-//                     to: responses[i].data._embedded.shows[j].end_at
-//                   }, '*')
-//                   .then((result) => {
-//                     // console.log("knex result: ", result)
-//                     // res.send(venues)
-//                   })
-//                   .catch((error) => {
-//                     console.log("knex error", error)
-//                   })
-//               }
-//             } else {
-//               knex('shows')
-//                 .insert({
-//                   venue_artsy_id: partners[i],
-//                   name: null,
-//                   from: null,
-//                   to: null
-//                 }, '*')
-//                 .then((result) => {
-//                   console.log("knex result: ", result)
-//                   // res.send(venues)
-//                 })
-//                 .catch((error) => {
-//                   console.log("knex error", error)
-//                 })
-//             }
-//           }
-//         }
-//       }
-//   })
-//   .catch((error) => {
-//     console.log('error from get shows promise all: ', error);
-//   })
-// })
-//
-//
-// /*--------------------------------------------------*/
-// //id = city
-// router.get('/venues/:id', authenticate, function(req, res, next) {
-//   console.log("entered /venues")
-//   let cityId = req.params.id
-//   console.log("cityId: ", cityId)
-//   console.log("cities.cityId: ", cities[cityId])
-//
-//   var cityName = cities[cityId].name
-//   let partners = cities[cityId].partners
-//
-//   let axiosCalls = [];
-//   for (let i = 0; i < partners.length; i++) {
-//     let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running"
-//     let options = {
-//       method: 'GET',
-//       url: strUrl,
-//       headers: {
-//         'X-Xapp-Token': token
-//       }
-//     }
-//     axiosCalls.push(axios(options))
+// //why must send res as an argument here but not in getShows?
+// function getArtists(shows, res) {
+//   //append possible people names to each show object in array
+//   for (show of shows) {
+//     let possiblePeopleNames = extractPossibleNames(show.name)
+//     show.name_possible_names = possiblePeopleNames
+//     possiblePeopleNames = extractPossibleNames(show.desc)
+//     show.desc_possible_names = possiblePeopleNames
+//     possiblePeopleNames = extractPossibleNames(show.press)
+//     show.press_possible_names = possiblePeopleNames
 //   }
 //
-//   Promise.all(axiosCalls).then(function(responses) {
-//       console.log("responses.length: ", responses.length)
-//       let venuesWithShows = []
-//       for (response of responses) {
-//         //venues includes only venues with current show(s)
-//         if (response.data._embedded.shows.length > 0) {
-//           venuesWithShows.push(response.data._embedded.shows[0]._links.partner.href)
-//         }
-//       }
-//
-//       return venuesWithShows
-//     })
-//     .then(function(venuesWithShows) {
-//       let axiosCalls = []
-//       for (venue of venuesWithShows) {
-//         let strUrl = venue
-//         let options = {
-//           method: 'GET',
-//           url: strUrl,
-//           headers: {
-//             'X-Xapp-Token': token
-//           }
-//         }
-//         axiosCalls.push(axios(options))
-//       }
-//
-//       Promise.all(axiosCalls).then(function(responses) {
-//           // console.log(rresponses)
-//           // let names = []
-//           let venues = []
-//           // let venue = {}
-//           for (response of responses) {
-//             let venue = {}
-//
-//             venue.id = response.data.id
-//             venue.name = response.data.name
-//             venue.city = cityName
-//
-//             venues.push(venue)
-//           }
-//           console.log("venues: ", venues)
-//
-//           getShows(venues)
-//         })
-//         .catch(function(err) {
-//           console.log("error from promise all get venue names", err)
-//           next()
-//         })
-//     })
-//     .catch(function(err) {
-//       console.log("error from get venues promise all: ", err)
-//       next();
-//     })
-//
-//   function getShows(venues) {
-//     let axiosCalls = [];
-//     let shows = {}
-//     for (venue of venues) {
-//       shows[venue.id] = {}
-//       let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + venue.id + "&status=running"
-//       let options = {
-//         method: 'GET',
-//         url: strUrl,
-//         headers: {
-//           'X-Xapp-Token': token
-//         }
-//       }
-//       // shows.push(show)
-//       console.log(strUrl)
-//       axiosCalls.push(axios(options))
-//     }
-//     // console.log(axiosCalls)
-//
-//     //each response contains a list of shows for a given venue
-//     Promise.all(axiosCalls).then(function(responses) {
-//         let axiosCalls = []
-//
-//         for (showsResponse of responses) {
-//           let venueIdUrl = showsResponse.data._embedded.shows[0]._links.partner.href
-//           let venueId = venueIdUrl.slice(venueIdUrl.length - 24, venueIdUrl.length)
-//           shows[venueId].shows = []
-//
-//           for (let i = 0; i < showsResponse.data._embedded.shows.length; i++) {
-//             let show = {}
-//             show.name = showsResponse.data._embedded.shows[i].name
-//             show.from = showsResponse.data._embedded.shows[i].start_at
-//             show.to = showsResponse.data._embedded.shows[i].end_at
-//             show.desc = showsResponse.data._embedded.shows[i].description
-//             show.press = showsResponse.data._embedded.shows[i].press_release
-//             show.artsy_venue_id = venueId
-//             shows[venueId].shows.push(show)
-//           }
-//
-//         }
-//         //reformat shows object for parsing by get artists
-//         //(each show for city will be represented as an object in an array)
-//         let allShows = []
-//         for (venue in shows) {
-//           let showsJson = shows[venue]
-//           let arrShows = showsJson.shows;
-//           for (show of arrShows) {
-//             allShows.push(show)
-//           }
-//         }
-//         // res.send(allShows)
-//         getArtists(allShows, res)
-//       })
-//       .catch(function(err) {
-//         console.log("error from getShows: ", err)
-//         next()
-//       })
+//   //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
+//   var axiosCalls = []
+//   for (show of shows) {
+//     //show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
+//     show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
+//     //show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
 //   }
 //
-// })
-
-//why must send res as an argument here but not in getShows?
-function getArtists(shows, res) {
-  //append possible people names to each show object in array
-  for (show of shows) {
-    let possiblePeopleNames = extractPossibleNames(show.name)
-    show.name_possible_names = possiblePeopleNames
-    possiblePeopleNames = extractPossibleNames(show.desc)
-    show.desc_possible_names = possiblePeopleNames
-    possiblePeopleNames = extractPossibleNames(show.press)
-    show.press_possible_names = possiblePeopleNames
-  }
-
-  //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
-  var axiosCalls = []
-  for (show of shows) {
-    //show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
-    show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
-    //show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
-  }
-
-  res.send(shows)
-  // //check for possible artists in order of likely succinctness of list containing the show artist name(s)
-  let AllPromises = []
-  for (show of shows) {
-    AllPromises.push(Promise.all(show.name_calls))
-
-  }
-
-  Promise.all(AllPromises).then((res) => {
-    console.log('??????', res);
-  })
-  // if (show.name_calls.length > 0) {
-  //   console.log
-  //   Promise.all(show.name_calls).then(function(responses) {
-  //     //check each response for artist hit
-  //     for (response of responses) {
-  //       console.log(response)
-  //       // if (isArtist(response)) {
-  //       //   console.log("found artist")
-  //       // }
-  //     }
-  //   })
-  // } else if (show.desc_calls.length > 0) {
-  //
-  // } else if (show.press_calsl.length > 0) {
-  //
-  // }
-  // res.send(shows)
-}
-
-
+//   res.send(shows)
+//   // //check for possible artists in order of likely succinctness of list containing the show artist name(s)
+//   let AllPromises = []
+//   for (show of shows) {
+//     AllPromises.push(Promise.all(show.name_calls))
+//
+//   }
+//
+//   Promise.all(AllPromises).then((res) => {
+//     console.log('??????', res);
+//   })
+//   // if (show.name_calls.length > 0) {
+//   //   console.log
+//   //   Promise.all(show.name_calls).then(function(responses) {
+//   //     //check each response for artist hit
+//   //     for (response of responses) {
+//   //       console.log(response)
+//   //       // if (isArtist(response)) {
+//   //       //   console.log("found artist")
+//   //       // }
+//   //     }
+//   //   })
+//   // } else if (show.desc_calls.length > 0) {
+//   //
+//   // } else if (show.press_calsl.length > 0) {
+//   //
+//   // }
+//   // res.send(shows)
+// }
+//
+//
 function extractPossibleNames(str) {
   let possibleNames = [];
   //this will look for person names that are two capitalized contigious strings
@@ -692,6 +481,35 @@ function isArtist(strXml) {
   }
 }
 
-
+//get google image search source
+// function getGisSrc() {
+//   strSearchUrl = "https://cors-anywhere.herokuapp.com/"
+//    + strGoogleImageBaseUrl
+//    + arrayArtistObjects[arrayArtistObjects.length - numArtistsLeft].name.replace(" ", "+")
+//    + arrayArtistObjects[arrayArtistObjects.length - numArtistsLeft].strForImageSearch
+//    + "&tbm=isch";
+//
+//
+//   strUrl = strSearchUrl = "https://cors-anywhere.herokuapp.com/" + strGoogleImageBaseUrl
+//   let options = {
+//     method: 'GET',
+//     url: strUrl,
+//     headers: {
+//       'X-Xapp-Token': token
+//     }
+//   }
+//
+//   axios(options)
+//     .then(function(response) {
+//
+//
+//   let $xhr = $.get(strSearchUrl)
+//
+//   if (numArtistsLeft >= 0) {
+//     console.log("check1")
+//     $xhr.done(cbGoogleImageSearch);
+//   }
+// }
+//
 
 module.exports = router
