@@ -258,16 +258,20 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
         // console.log("num getGqsCalls: " axiosCalls.length)
         //Google Query Search for possible artists from possible names
         //and insert the possible artists into artists table
+
+        let artists = [];
+
         Promise.all(axiosCalls)
           .then(function(gqsResults) {
+            let axiosCalls = []
             //gqsResults in same order as possibleNames
             //checkForArtists returns array of objects of names and GQS search string name found to be artist on
 
             let arrArtistObjs = checkForArtists(possibleNames, gqsResults)
 
-            let artists = [];
+            //submit artists to artists table if checkForArtists found artists
             if (arrArtistObjs.length > 0) {
-
+              //from data returned from checkForArtists, build artist objects representing row in artists table
               for (let artistObj of arrArtistObjs) {
                 let artist = {
                   name: artistObj.name,
@@ -275,19 +279,62 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
                   relevant: true,
                   artsy_show_id: showId,
                   image_urls: {
-                    images: "blarf"
+                    images: []
                   }
                 }
                 console.log("artist: ", artist)
                 artists.push(artist)
               }
-              //insert one artistObj at a time into artists table
-              return knex.insert(artists).into('artists')
-            } else {
-              return
+              //if artists were found, get image urls for them
+
+              //for each artist found, build a Google Image Search query urls
+
+              console.log('$$$$$$$$$$', artists.length)
+
+              for (let artistObj of artists) {
+                let strGisBaseUrl = "https://www.google.com/search?safe=active&q="
+                let strGisEndUrl = "&tbm=isch"
+                let strUrl = strGisBaseUrl + artistObj.name.replace(' ', '+') + "+photos" + strGisEndUrl
+                let options = {
+                  method: 'GET',
+                  url: strUrl,
+                  headers: {
+                    // 'accept': 'text/html,application/xhtml+xml,application/xml',
+                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
+                    // 'X-Xapp-Token': token
+                  }
+                }
+                axiosCalls.push(axios(options))
+              }
             }
+
+            //get urls for each artist with promise all
+            //(order maintained, 1:1 with artists)
+            //map urls to artists
+            // console.log('&&&&&&&&', axiosCalls)
+            // console.log('!!!!!!!!!!!!', axiosCalls)
+            return Promise.all(axiosCalls) //should this be returned?
           })
-          .then(function(result) {
+          .then(function(responses) {
+
+            // console.log("=======>>>>>>>>>", responses.length)
+            // console.log("=======>>>>>>>>>", artists.length)
+
+            for (let i = 0; i < responses.length; i++) {
+              // console.log("=======", i)
+              // console.log("---", responses)
+
+              // artists[i].image_urls.push(getImgUrls(response))
+              let arrImgUrls = getImgUrls(responses[i])
+              console.log("+++++%%%%%%%", arrImgUrls)
+              console.log("-------------", artists[i])
+              artists[i].image_urls.images.push(arrImgUrls)
+            }
+            return knex.insert(artists).into('artists').returning('*')
+          })
+          .then(function(arrArtistObjs) {
+
+            // does not matter if insert was empty
             res.send(true)
           })
           .catch(function(error) {
@@ -369,7 +416,10 @@ function checkForArtists(possibleNames, gqsResults) {
     for (let iType = 0; iType < artistTypesToCheckFor.length; iType++) {
       let gqsXml = gqsResults[(iPossibleName * artistTypesToCheckFor.length) + iType].data
       if (isArtist(gqsXml)) {
-        artists.push( {name: possibleNames[iPossibleName], found_on: artistTypesToCheckFor[iType]} )
+        artists.push({
+          name: possibleNames[iPossibleName],
+          found_on: artistTypesToCheckFor[iType]
+        })
         iType = artistTypesToCheckFor.length //avoid duplicate pushes on multiple type hits
       }
     }
@@ -482,34 +532,66 @@ function isArtist(strXml) {
 }
 
 //get google image search source
-// function getGisSrc() {
-//   strSearchUrl = "https://cors-anywhere.herokuapp.com/"
-//    + strGoogleImageBaseUrl
-//    + arrayArtistObjects[arrayArtistObjects.length - numArtistsLeft].name.replace(" ", "+")
-//    + arrayArtistObjects[arrayArtistObjects.length - numArtistsLeft].strForImageSearch
-//    + "&tbm=isch";
-//
-//
-//   strUrl = strSearchUrl = "https://cors-anywhere.herokuapp.com/" + strGoogleImageBaseUrl
-//   let options = {
-//     method: 'GET',
-//     url: strUrl,
-//     headers: {
-//       'X-Xapp-Token': token
-//     }
-//   }
-//
-//   axios(options)
-//     .then(function(response) {
-//
-//
-//   let $xhr = $.get(strSearchUrl)
-//
-//   if (numArtistsLeft >= 0) {
-//     console.log("check1")
-//     $xhr.done(cbGoogleImageSearch);
-//   }
-// }
-//
+function getImgUrls(response) {
+  // console.log("***from getGisSrc: ", artistObj.name)
+  // // sample GIS url: https://www.google.com/search?safe=active&q=andreas+gursky+photos&tbm=isch
+  // let strGisBaseUrl = "https://www.google.com/search?q=" //"https://www.google.com/search?safe=active&q="
+  // let strGisEndUrl = "&tbm=isch"
+  // let strUrl = strGisBaseUrl + artistObj.name.replace(' ', '+') + "+photos" + strGisEndUrl
+  // console.log(">>>>>>", strUrl)
+  // let options = {
+  //   method: 'GET',
+  //   url: strUrl,
+  //   headers: {
+  //     // 'accept': 'text/html,application/xhtml+xml,application/xml',
+  //     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
+  //     // 'X-Xapp-Token': token
+  //   }
+  // }
+  // axios(options)
+  //   .then(function(response) {
+  //     console.log("result from GIS axios: ", response.data)
+
+  //pattern for finding start of image urls in GIS response
+  let imgUrlPatRe = new RegExp('"ou":', 'g')
+
+  //harvest image urls
+  let arrImageUrls = []
+  //get the first 3 image urls
+  let numUrls = 3;
+  while (imgUrlPatRe.exec(response.data) !== null && numUrls > 0) {
+    console.log("this is happening")
+    let iStr = imgUrlPatRe.lastIndex
+    let subStr = response.data.substring(iStr)
+
+    if (subStr.substring(0, 5) === '"http') {
+      let retUrl = subStr.match(/"http.*?"/)
+      let retUrlLength = retUrl[0].length
+
+      //get rid of eztra quotes on either end of url string
+      retUrl = retUrl[0].slice(1, retUrlLength - 1)
+
+
+      arrImageUrls.push(retAsciiFromUnicodeStr(retUrl));
+
+      numUrls--;
+    }
+  }
+
+  //this helper function courtesy of https://stackoverflow.com/questions/7885096/how-do-i-decode-a-string-with-escaped-unicode
+  function retAsciiFromUnicodeStr(str) {
+    var r = /\\u([\d\w]{4})/gi;
+    str = str.replace(r, function(match, grp) {
+      return String.fromCharCode(parseInt(grp, 16));
+    });
+    str = unescape(str);
+    return str;
+  }
+  // console.log("from getGisSrc axios.then>>>>>>>>", arrImageUrls)
+  console.log(">>>>>>%%%%%%%%>>>>>>>>", arrImageUrls)
+  return arrImageUrls;
+
+}
+
 
 module.exports = router
