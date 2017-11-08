@@ -24,7 +24,7 @@
         .then(function(response) {
           let shows = [];
           for(show of response) {
-            shows.push({name: show.name, artsy_id: show.artsy_id})
+            shows.push({name: show.shows_name, artsy_id: show.artsy_id})
           }
           vm.shows = shows;
         })

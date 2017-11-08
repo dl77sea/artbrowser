@@ -62,6 +62,13 @@ function retrieveService($http) {
       })
   }
 
+  // this.getArtistsWithShowsByCity = function(CityId) {
+  //     return $http.get('/api/retrieve/'+cityId+'/artists')
+  //       .then(function(responseArtists) {
+  //         return responseArtists.data
+  //       })
+  // }
+
   this.getArtistsByShow = function(showId) {
     console.log("check getArtistsByShow gets called venuId: ", showId)
     return $http.get('/api/retrieve/show/' + showId + '/artists')

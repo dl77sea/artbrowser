@@ -7,7 +7,8 @@ exports.seed = function(knex, Promise) {
       return knex('cities').insert([
         {id: 1, name: 'Seattle'},
         {id: 2, name: 'San Francisco'},
-        {id: 3, name: 'Los Angeles'}
+        {id: 3, name: 'Los Angeles'},
+        {id: 4, name: 'Copenhagen'}
       ]);
     });
 };

@@ -6,7 +6,8 @@ angular
 
 function currentService() {
   this.venues;
-  this.cityId = "sea" //default
+  // this.cityId = "sea" //default
+  this.cityId = 4 //"cph"
 
   // setVenues(venues) = function(venues) {
   //   this.venues = venues;

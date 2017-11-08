@@ -8,7 +8,20 @@ const cheerio = require('cheerio')
 
 const $ = cheerio
 
-
+var partnersCPH = [
+  "4df220a64c0f46000100d3f2", //Nils StÃ¦rk //Nils Stærk
+  "50776cfefdab6100020001e6", //Andersen's Contemporary
+  "594260972a893a206eeb9218", //Milsted Andersen
+  "5537ec3a776f7272c7800000", //In The Gallery
+  "50776cf5fdab610002000162", //Galleri Bo Bjerggaard
+  "52e9197f8b3b816ce400000a", //V1 Gallery
+  "4fb40f03d120120001000d41", //David Risley Gallery
+  "515348ffc38e12392600010c", //Dansk MÃ¸belkunst Gallery
+  "555b8a8f72616967c1900000", //Galleri Feldt
+  "53d69995776f722929950000", //Martin AsbÃ¦k Gallery
+  "56e82995275b2479430039e8", //SABSAY
+  "4de1179108c1100001005a27"  //Galleri Nicolai Wallner
+]
 
 var partnersSEA = [
   "53d26e7b776f723ccc140100", //Mariane Ibrahim Gallery
@@ -29,8 +42,15 @@ let sea = {
   partners: partnersSEA
 }
 
+let cph = {
+  name: "Copenhagen",
+  knex_id: 4,
+  partners: partnersCPH
+}
+
 let cities = {
-  sea
+  // sea,
+  cph
 }
 
 var strToken;

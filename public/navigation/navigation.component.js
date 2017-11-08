@@ -18,6 +18,10 @@
       let testven = "blarffy"
       let cityId = currentService.cityId
 
+      //return artists with shows for current city
+      // retrieveService.getArtists(cityId)
+      //   .then(function(artistsRows) )
+
       //return venues with shows by city from venues table
       retrieveService.getVenues(cityId)
         .then(function(venuesResponse) {
