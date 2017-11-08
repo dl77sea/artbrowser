@@ -24,9 +24,13 @@
         .then(function(response) {
           let shows = [];
           for(show of response) {
-            shows.push({name: show.shows_name, artsy_id: show.artsy_id})
+            // if(show.show_name)
+            shows.push({name: show.name, artsy_id: show.show_artsy_id})
           }
+
           vm.shows = shows;
+
+          console.log("************", vm.shows)
         })
 
     }
