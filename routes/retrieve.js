@@ -107,8 +107,11 @@ router.get('/venue/:id/shows', function(req, res, next) {
   knex('shows')
     .select( 'shows.artsy_id as show_artsy_id')
     .distinct('shows.name')
+    .distinct('shows.from')
+    .distinct('shows.to')
     .leftJoin('artists', 'artists.artsy_show_id', 'shows.artsy_id')
     .whereNotNull('artists.name')
+    .andWhere('artists.relevant', 'true')
     .andWhere('shows.venue_artsy_id', venueId)
     // .groupBy('shows.name')
     .then(function(shows) {

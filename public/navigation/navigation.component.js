@@ -19,7 +19,7 @@
 
     vm.$onInit = function() {
       let venues;
-
+      moment().format();
       let testven = "blarffy"
       let cityId = currentService.cityId
 

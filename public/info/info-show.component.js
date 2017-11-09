@@ -3,7 +3,9 @@
     .component('infoShow', {
       controller: controller,
       templateUrl: './info/info-show.template.html',
-      bindings: {venueArtsyId: '='}
+      bindings: {
+        venueArtsyId: '='
+      }
     })
 
   controller.$inject = ['$state', '$http', 'retrieveService'];
@@ -23,14 +25,22 @@
       retrieveService.getShowsByVenue(vm.venueArtsyId)
         .then(function(response) {
           let shows = [];
-          for(show of response) {
+          for (show of response) {
             // if(show.show_name)
-            shows.push({name: show.name, artsy_id: show.show_artsy_id})
+            shows.push({
+              name: show.name,
+              artsy_id: show.show_artsy_id,
+              from: show.from,
+              to: show.to
+            })
           }
 
           vm.shows = shows;
 
-          console.log("************", vm.shows)
+          console.log("************", (vm.shows[0].from))
+          let dateFrom = moment(vm.shows[0].from)
+          console.log(dateFrom.format('dddd, MMMM Do YYYY'))
+          // console.log(moment.format((vm.shows[0].from)))
         })
 
     }
