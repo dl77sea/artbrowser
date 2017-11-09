@@ -8,15 +8,29 @@
 
 
   controller.$inject = ['$state', '$http', 'retrieveService', 'currentService', '$scope'];
+  // app.controller("first", function($scope, sharedScope) {
+  //     $scope.data1 = sharedScope.data;
+  // });
 
-  function controller($state, $http, retrieveService, currentService, $scope) {
+  function controller($state, $http, retrieveService, currentService, $scope, sharedScope) {
     const vm = this
     vm.venues = [];
+    vm.cities = [];
 
     vm.$onInit = function() {
       let venues;
+
       let testven = "blarffy"
       let cityId = currentService.cityId
+
+      retrieveService.getCities()
+        .then(function(cities) {
+          console.log("cities from navigation: ", cities)
+          for(city of cities.data) {
+            console.log (city.name);
+          }
+          vm.cities = cities.data
+        })
 
       //return artists with shows for current city
       // retrieveService.getArtists(cityId)
@@ -59,7 +73,13 @@
     // }
 
     //scroll to selected venue
+    vm.clickCityItem = function(id) {
+      console.log(id)
+
+    }
+
     vm.clickVenueItem = function(id) {
+      vm.venues = [];
       console.log(id)
       // let arrShows = []
       // // get shows for selected venue

@@ -7,7 +7,6 @@ retrieveService.$inject = ['$http'];
 function retrieveService($http) {
 
   this.getVenues = function(cityId) {
-
     return $http.get('/api/retrieve/city/' + cityId + '/venues')
     // .then(function(venuesResponse) {
     //   return venuesReponse
@@ -36,12 +35,12 @@ function retrieveService($http) {
       })
   }
 
-  this.getVenue = function(venueId) {
+  this.getVenue = function(venueId) {    
     return $http.get('/api/retrieve/venue/' + cityId + '/venues')
       .then(function(venuesResponse) {
         // venuesResponse = vr;
         console.log("venuesResponse: ", venuesResponse.data)
-        //sample return item from res.send array:
+        // sample return item from res.send array:
         // {artsy_id: "53d26e7b776f723ccc140100", name: "Mariane Ibrahim Gallery", cities_id: 1}
         // build list of venues with at least one show to populate menu with
         promiseCalls = []
@@ -75,6 +74,14 @@ function retrieveService($http) {
       .then(function(responseArtists) {
         console.log("this happened from getArtistsByShow: ", responseArtists)
         return responseArtists.data
+      })
+  }
+
+  this.getCities = function() {
+    return $http.get('/api/retrieve/cities')
+      .then(function(responseCities) {
+        console.log(" responseCities ", responseCities)
+        return responseCities
       })
   }
 

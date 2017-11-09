@@ -137,4 +137,11 @@ router.get('/show/:id/artists', function(req, res, next) {
     })
 })
 
+router.get('/cities', function(req, res, next) {
+    knex('cities')
+      .then(function(cities) {
+        res.send(cities)
+      })
+})
+
 module.exports = router
