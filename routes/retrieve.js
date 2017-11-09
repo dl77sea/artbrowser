@@ -147,4 +147,37 @@ router.get('/cities', function(req, res, next) {
       })
 })
 
+// p.patch('/api/retrieve/artist/'+artistName+'/relevance')
+
+// this.patchRelevance = function(artistName, artistRelevance) {
+//   bodyObj = {relevance: !artistRelevance}
+//   return $http.patch('/api/retrieve/artist/'+artistName+'/relevance', bodyObj)
+//     .then(function(responseRelevance) {
+//       console.log(respons
+router.patch('/artist/relevance', function(req, res, next) {
+  console.log("entered artist/relevance patch: ")
+  let artistName = req.body.name
+  knex('artists')
+    .where('artists.name', artistName)
+    .first()
+    .then(function(rowArtist) {
+      if(!rowArtist) {
+        throw new Error("artist not found")
+      }
+      rowArtist.relevant = req.body.relevant
+      return knex('artists')
+        .where('artists.name', artistName)
+        .update(rowArtist)
+        .returning('*')
+    })
+    .then(function(rowArtist) {
+      res.send(rowArtist)
+    })
+    .catch(function(error) {
+      console.log(error)
+      next(error)
+    })
+})
+
+
 module.exports = router

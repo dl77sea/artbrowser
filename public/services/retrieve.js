@@ -35,7 +35,7 @@ function retrieveService($http) {
       })
   }
 
-  this.getVenue = function(venueId) {    
+  this.getVenue = function(venueId) {
     return $http.get('/api/retrieve/venue/' + cityId + '/venues')
       .then(function(venuesResponse) {
         // venuesResponse = vr;
@@ -83,6 +83,13 @@ function retrieveService($http) {
         console.log(" responseCities ", responseCities)
         return responseCities
       })
+  }
+
+  this.patchRelevance = function(artistName, artistRelevance) {
+    console.log("entered patchRelevance: ", artistName, artistRelevance)
+    bodyObj = { name: artistName, relevant: !artistRelevance }
+    return $http.patch('/api/retrieve/artist/relevance', bodyObj)
+      
   }
 
 }

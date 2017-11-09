@@ -1,8 +1,8 @@
 
   <!-- {{show.name}} -->
-<p>from info-show: {{$ctrl.venueArtsyId}}</p>
+<!-- <p>from info-show: {{$ctrl.venueArtsyId}}</p> -->
 
-<div ng-repeat="show in $ctrl.shows">
+<div class="debug-border" ng-repeat="show in $ctrl.shows">
   <p>show name: {{show.name}}</p>
   <info-artist show-artsy-id="show.artsy_id"></info-artist>
 </div>

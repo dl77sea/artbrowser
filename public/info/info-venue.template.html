@@ -1,6 +1,7 @@
 
 <!-- {{$ctrl.venues}} gets passed to nested view through binding-->
-<div ng-repeat="venue in $ctrl.venues">
+<div class="debug-border" ng-repeat="venue in $ctrl.venues">
   <p>{{venue.name}}</p>
   <info-show venue-artsy-id="venue.artsy_id"></info-show>
+  <a ng-click="$ctrl.reRenderVenues()">test reRenderVenues</a>
 </div>

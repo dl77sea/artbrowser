@@ -53,6 +53,9 @@ let cities = {
   cph
 }
 
+
+
+
 var strToken;
 var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
 // var partners = partnersSEA;
@@ -590,7 +593,6 @@ function getImgUrls(response) {
 
       //get rid of eztra quotes on either end of url string
       retUrl = retUrl[0].slice(1, retUrlLength - 1)
-
 
       arrImageUrls.push(retAsciiFromUnicodeStr(retUrl));
 

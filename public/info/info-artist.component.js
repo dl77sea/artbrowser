@@ -8,10 +8,11 @@
       }
     })
 
-  controller.$inject = ['$state', '$http', 'retrieveService'];
+  controller.$inject = ['$state', '$http', 'retrieveService', 'currentService'];
 
-  function controller($state, $http, retrieveService) {
+  function controller($state, $http, retrieveService, currentService) {
     const vm = this
+    vm.relevanceMode = currentService.relevanceMode
 
     vm.$onInit = function() {
       console.log("from info-artist showArtsyId: ", vm.showArtsyId)
@@ -28,7 +29,8 @@
               // console.log("artist of response: ", artist.image_urls.images)
               artists.push({
                 name: artist.name,
-                image_urls: artist.image_urls.images
+                image_urls: artist.image_urls.images,
+                relevant: artist.relevant
                 // image_urls: artist.image_urls
               })
             }
@@ -44,5 +46,15 @@
           }
         })
     }
+
+    vm.clickRelevance = function(artistName, artistRelevance, i) {
+      console.log("entered clickRelevance")
+      retrieveService.patchRelevance(artistName, artistRelevance)
+      .then(function (result) {
+        console.log("result from retrieveService.patchRelevance: ", result)
+        vm.artists[i].relevant = result.data[0].relevant
+      })
+    }
+
   }
 }());
