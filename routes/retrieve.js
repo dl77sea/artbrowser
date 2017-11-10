@@ -101,8 +101,8 @@ router.get('/city/:id/venues', function(req, res, next) {
 // left join artists on artists.artsy_show_id = shows.artsy_id
 // where artists.name is not null
 // and shows.venue_artsy_id = '52cef4b4b202a321ae0000e0' group by shows.name;
-router.get('/venue/:id/shows', function(req, res, next) {
-  console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@", req.body.relevance)
+router.post('/venue/:id/shows', function(req, res, next) {
+  console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@", req.body)
   let venueId = req.params.id
   console.log("enter venue id shows")
   knex('shows')
@@ -112,7 +112,7 @@ router.get('/venue/:id/shows', function(req, res, next) {
     .distinct('shows.to')
     .leftJoin('artists', 'artists.artsy_show_id', 'shows.artsy_id')
     .whereNotNull('artists.name')
-    .andWhere('artists.relevant', 'true')
+    .andWhere('artists.relevant', req.body.relevance)
     .andWhere('shows.venue_artsy_id', venueId)
     // .groupBy('shows.name')
     .then(function(shows) {

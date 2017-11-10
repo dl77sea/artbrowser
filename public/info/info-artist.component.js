@@ -14,6 +14,8 @@
     const vm = this
     vm.currentService = currentService;
 
+    console.log("@@@@@@",currentService.relevanceMode)
+
     vm.relevanceMode = currentService.relevanceMode
 
     vm.$onInit = function() {
@@ -55,7 +57,7 @@
       .then(function (result) {
         console.log("result from retrieveService.patchRelevance: ", result)
         vm.artists[i].relevant = result.data[0].relevant
-        currentService.reRenderVenues()
+        retrieveService.reRenderVenues()
       })
     }
 

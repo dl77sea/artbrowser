@@ -37,7 +37,9 @@
       // retrieveService.getArtists(cityId)
       //   .then(function(artistsRows) )
 
-      //return venues with shows by city from venues table
+      retrieveService.reRenderVenues()
+
+/*
       retrieveService.getVenues(cityId)
         .then(function(venuesResponse) {
           console.log(venuesResponse)
@@ -66,6 +68,7 @@
         .catch(function(error) {
           console.log("error retrieving venues by city: ", error)
         })
+*/
     }
 
     // vm.clickVenueItem = function(id) {
@@ -77,7 +80,7 @@
     vm.clickCityItem = function(id) {
       console.log(id)
       currentService.cityId = id
-      currentService.reRenderVenues()
+      retrieveService.reRenderVenues()
     }
 
     vm.clickVenueItem = function(id) {
@@ -86,7 +89,7 @@
 
     vm.clickRelevanceMode = function() {
       currentService.relevanceMode = !currentService.relevanceMode
-      currentService.reRenderVenues()
+      retrieveService.reRenderVenues()
     }
 
   }

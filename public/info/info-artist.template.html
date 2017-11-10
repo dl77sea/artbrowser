@@ -8,6 +8,7 @@
   <p class="debug-border" ng-show="artist.relevant == true && $ctrl.relevanceMode == true">artists for this show: {{artist.name}}</p>
   <p class="debug-border" ng-class="" ng-show="artist.relevant == false && $ctrl.relevanceMode == false">artists for this show: {{artist.name}}</p>
   <!-- {{artist}} -->
-  <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mark irrelevant</a>
-  <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mark relevant</a>
+  artist.relevant: {{artist.relevant}} currentService.relevanceMode: {{$ctrl.currentService.relevanceMode}}
+  <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mfark irrelevant</a>
+  <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mfark relevant</a>
 </div>

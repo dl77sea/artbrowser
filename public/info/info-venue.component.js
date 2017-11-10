@@ -19,9 +19,9 @@
       //replace this with access to vm.venues from navigation component
       //return venues with shows by city from venues table
       //use artsy_id of venue to start info nested view chain
-      currentService.reRenderVenues()
-      // vm.venues = currentService.venues
-      // console.log('IN VENUES component', vm.venues);
+      retrieveService.reRenderVenues()
+      vm.venues = currentService.venues
+      console.log('IN VENUES component', vm.venues);
     }
 
 
