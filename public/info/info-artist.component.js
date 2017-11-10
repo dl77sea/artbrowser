@@ -53,6 +53,7 @@
       .then(function (result) {
         console.log("result from retrieveService.patchRelevance: ", result)
         vm.artists[i].relevant = result.data[0].relevant
+        currentService.reRenderVenues()
       })
     }
 
