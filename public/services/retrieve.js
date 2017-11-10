@@ -2,7 +2,7 @@ angular
   .module('app')
   .service('retrieveService', retrieveService)
 
-retrieveService.$inject = ['$http'];
+retrieveService.$inject = ['$http', 'currentService']; //how to get currentService in here so can pull in currentService.relevanceMode ?
 
 function retrieveService($http) {
 
@@ -27,7 +27,7 @@ function retrieveService($http) {
         promiseCalls = []
         for (venue of venuesResponse.data) {
           console.log(venue.artsy_id)
-          promiseCalls.push($http.get('/api/retrieve/venue/' + venue.artsy_id + '/shows'))
+          promiseCalls.push($http.get('/api/retrieve/venue/' + venue.artsy_id + '/shows', {relevance: currentService.relevanceMode}))
         }
         venuesWithShows = []
         return Promise.all(promiseCalls) //figure out how this return gets into following .then
@@ -46,7 +46,7 @@ function retrieveService($http) {
         promiseCalls = []
         for (let venue of venuesResponse.data) {
           console.log(venue.artsy_id)
-          promiseCalls.push($http.get('/api/retrieve/venue/' + venue.artsy_id + '/shows'))
+          promiseCalls.push($http.get('/api/retrieve/venue/' + venue.artsy_id + '/shows', {relevance: currentService.relevanceMode}))
         }
         venuesWithShows = []
         return Promise.all(promiseCalls) //figure out how this return gets into following .then
@@ -55,7 +55,7 @@ function retrieveService($http) {
   }
 
   this.getShowsByVenue = function(venueId) {
-    return $http.get('/api/retrieve/venue/' + venueId + '/shows')
+    return $http.get('/api/retrieve/venue/' + venueId + '/shows', {relevance: currentService.relevanceMode})
       .then(function(responseShows) {
         return responseShows.data
       })
@@ -89,13 +89,7 @@ function retrieveService($http) {
     console.log("entered patchRelevance: ", artistName, artistRelevance)
     bodyObj = { name: artistName, relevant: !artistRelevance }
     return $http.patch('/api/retrieve/artist/relevance', bodyObj)
-      .then(function(responseRelevance) {
-        // console.log("response from patchRelevance: ", responseRelevance.data)
-        return
-      })
-      .then(function(results) {
-        return $http.patch('/api/retrieve/artist/relevance', bodyObj)
-      })
+
   }
 
 }

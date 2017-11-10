@@ -102,6 +102,7 @@ router.get('/city/:id/venues', function(req, res, next) {
 // where artists.name is not null
 // and shows.venue_artsy_id = '52cef4b4b202a321ae0000e0' group by shows.name;
 router.get('/venue/:id/shows', function(req, res, next) {
+  console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@", req.body.relevance)
   let venueId = req.params.id
   console.log("enter venue id shows")
   knex('shows')

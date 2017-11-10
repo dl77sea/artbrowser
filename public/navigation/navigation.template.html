@@ -61,5 +61,8 @@
     <!-- why use ui-view here instead of just <info-venue>-->
     <!-- <ui-view venues="venues"></ui-view> -->
     <ui-view></ui-view>
+    <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show entries marked irrelevant</a>
+    <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show entries marked relevant</a>
+
   </div>
 </main>

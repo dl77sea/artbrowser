@@ -84,6 +84,10 @@
       console.log(id)
     }
 
+    vm.clickRelevanceMode = function() {
+      currentService.relevanceMode = !currentService.relevanceMode
+      currentService.reRenderVenues()
+    }
 
   }
 

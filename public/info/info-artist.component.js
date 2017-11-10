@@ -12,6 +12,8 @@
 
   function controller($state, $http, retrieveService, currentService) {
     const vm = this
+    vm.currentService = currentService;
+
     vm.relevanceMode = currentService.relevanceMode
 
     vm.$onInit = function() {
