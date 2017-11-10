@@ -24,7 +24,7 @@ function retrieveService($http, currentService) {
             venuesWithShows.push(venues[i])
           }
         }
-        vm.venues = venuesWithShows;
+        currentService.venues = venuesWithShows;
         console.log("from info-venue: ", vm.venues)
       })
       .catch(function(error) {

@@ -3,6 +3,9 @@
 <!-- <p>from info-show: {{$ctrl.venueArtsyId}}</p> -->
 
 <div class="debug-border" ng-repeat="show in $ctrl.shows">
-  <p>show name: {{show.name}}</p>
+  <p class=venue-title>Venue Title: {{$ctrl.venueName}} </p>
+  <p class="show-title">show name: {{show.name}}</p>
+  <p>from: {{$ctrl.dateFrom.format('dddd, MMMM Do YYYY')}}</p>
+  <p>to: {{$ctrl.dateTo.format('dddd, MMMM Do YYYY')}}</p>
   <info-artist show-artsy-id="show.artsy_id"></info-artist>
 </div>

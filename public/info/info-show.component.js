@@ -4,7 +4,8 @@
       controller: controller,
       templateUrl: './info/info-show.template.html',
       bindings: {
-        venueArtsyId: '='
+        venueArtsyId: '=',
+        venueName: '='
       }
     })
 
@@ -36,10 +37,13 @@
           }
 
           vm.shows = shows;
+          vm.dateFrom = moment(vm.shows[0].from)
+          vm.dateTo = moment(vm.shows[0].to)
 
-          console.log("************", (vm.shows[0].from))
-          let dateFrom = moment(vm.shows[0].from)
-          console.log(dateFrom.format('dddd, MMMM Do YYYY'))
+          // console.log("************", (vm.shows[0].from))
+          // let dateFrom = moment(vm.shows[0].from)
+          // let dateFrom = moment(vm.shows[0].from)
+          // console.log(dateFrom.format('dddd, MMMM Do YYYY'))
           // console.log(moment.format((vm.shows[0].from)))
         })
 

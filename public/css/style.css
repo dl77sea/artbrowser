@@ -63,7 +63,45 @@
   color: red;
   background-color: yellow;
 }
+/* artist layout */
+.sample-img {
+  display: inline-block;
+  min-width: 250px;
+  max-width: 250px;
+  height: auto;
+}
 
+.img-layout {
+  display: inline;
+}
+
+.artist-controls {
+  display: block;
+}
+/*show layout*/
+.show-title {
+  display: inline;
+}
+
+/*venue layout*/
+.venue-container {
+  display: relative;
+}
+
+.venue-title {
+  display: inline;
+  margin-left: 1.5rem;
+}
+
+.venue-date {
+  display: inline-block;
+}
+
+.venue-dates {
+  margin-right: 1.5rem;
+}
+
+/* nav bar */
 .brand-logo {
   margin-left: 1.5rem;
 }

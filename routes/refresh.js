@@ -65,7 +65,10 @@ var shows = [];
 var regexAutoCompleteQueryArtist = new RegExp(/\bartist\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
 var regexAutoCompleteQueryArt = new RegExp(/\bart\b/, 'g'); //new RegExp(/\bartist\b|\bart\b/, 'g');
 var regexAutoCompleteQueryPhotographer = new RegExp(/\bphotographer\b|\bphotos\b|\bphotography\b/, 'g');
+
 var artistTypesToCheckFor = ["+p", "+a"];
+var artistTypesSearchWords = ["photos", "art"]
+
 var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQueryArtist, regexAutoCompleteQueryArt];
 
 // url: "https://api.artsy.net/api/shows?partner_id=" + partners[i] + "&status=running",
@@ -313,11 +316,19 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
               //for each artist found, build a Google Image Search query urls
 
               //console.log('$$$$$$$$$$', artists.length)
-
+//https://www.google.com/search?safe=active&q=bo+christian+art+&tbm=isch
               for (let artistObj of artists) {
                 let strGisBaseUrl = "https://www.google.com/search?safe=active&q="
                 let strGisEndUrl = "&tbm=isch"
-                let strUrl = strGisBaseUrl + artistObj.name.replace(' ', '+') + "+photos" + strGisEndUrl
+
+                console.log('artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)', artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)])
+                let searchWord = artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)]
+                // var artistTypesToCheckFor = ["+p", "+a"];
+                // var artistTypesSearchWords = ["photos", "art"]
+
+
+                let strUrl = strGisBaseUrl + (artistObj.name.replace(' ', '+')) + '+' + searchWord + strGisEndUrl
+                console.log(">>>>>>>>>>!!!", strUrl)
                 let options = {
                   method: 'GET',
                   url: strUrl,
