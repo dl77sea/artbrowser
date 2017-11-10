@@ -89,7 +89,13 @@ function retrieveService($http) {
     console.log("entered patchRelevance: ", artistName, artistRelevance)
     bodyObj = { name: artistName, relevant: !artistRelevance }
     return $http.patch('/api/retrieve/artist/relevance', bodyObj)
-      
+      .then(function(responseRelevance) {
+        // console.log("response from patchRelevance: ", responseRelevance.data)
+        return
+      })
+      .then(function(results) {
+        return $http.patch('/api/retrieve/artist/relevance', bodyObj)
+      })
   }
 
 }

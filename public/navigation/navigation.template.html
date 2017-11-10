@@ -30,7 +30,7 @@
             <div class="dropdown">
               <button class="dropbtn">Dropdown</button>
               <div class="dropdown-content">
-                <p ng-repeat="city in $ctrl.cities track by $index" ng-click="$ctrl.clickCityItem(city.id)" class="dropdown-item" href="#">{{city.name}}</p>
+                <p ng-repeat="city in $ctrl.currentService.cities track by $index" ng-click="$ctrl.clickCityItem(city.id)" class="dropdown-item" href="#">{{city.name}}</p>
                 <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}} -->
                 <!-- <p class="dropdown-item" href="#">Link 3</p> -->
               </div>
@@ -43,7 +43,7 @@
           <div class="dropdown">
             <button class="dropbtn">Dropdown</button>
             <div class="dropdown-content">
-              <p ng-repeat="venue in $ctrl.venues track by $index" ng-click="$ctrl.clickVenueItem(venue.artsy_id)" class="dropdown-item" href="#">{{venue.name}}</p>
+              <p ng-repeat="venue in $ctrl.currentService.venues track by $index" ng-click="$ctrl.clickVenueItem(venue.artsy_id)" class="dropdown-item" href="#">{{venue.name}}</p>
               <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}}-->
               <!-- <p class="dropdown-item" href="#">Link 3</p> -->
             </div>
