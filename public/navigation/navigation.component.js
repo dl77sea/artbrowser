@@ -15,8 +15,8 @@
   function controller($state, $http, retrieveService, currentService, $scope, sharedScope) {
     const vm = this
     vm.currentService = currentService;
-    vm.venues = [];
-    vm.cities = [];
+    // vm.venues = [];
+    // vm.cities = [];
 
     vm.$onInit = function() {
       let venues;
@@ -30,14 +30,42 @@
           for(city of cities.data) {
             console.log (city.name);
           }
-          vm.cities = cities.data
+          currentService.cities = cities.data
         })
 
       //return artists with shows for current city
       // retrieveService.getArtists(cityId)
       //   .then(function(artistsRows) )
 
-
+      //return venues with shows by city from venues table
+      retrieveService.getVenues(cityId)
+        .then(function(venuesResponse) {
+          console.log(venuesResponse)
+          venues = venuesResponse.data;
+          return
+        })
+        .then(function() {
+          console.log("entered getVenues then")
+          return retrieveService.getShows(cityId)
+        })
+        .then(function(responseShows) {
+          let venuesWithShows = []
+          console.log("blarffff")
+          console.log("responseShows from retrieveService.getShows: ", responseShows)
+          console.log("this should be populated: ", venues)
+          for(let i=0; i < responseShows.length; i++) {
+            // console.log(show.data)
+            if(responseShows[i].data.length > 0) {
+              venuesWithShows.push(venues[i])
+            }
+          }
+          console.log(venuesWithShows)
+          currentService.venues = venuesWithShows
+          // vm.venues = currentService.venues
+        })
+        .catch(function(error) {
+          console.log("error retrieving venues by city: ", error)
+        })
     }
 
     // vm.clickVenueItem = function(id) {
@@ -48,29 +76,12 @@
     //scroll to selected venue
     vm.clickCityItem = function(id) {
       console.log(id)
-
+      currentService.cityId = id
+      currentService.reRenderVenues()
     }
 
     vm.clickVenueItem = function(id) {
-      vm.venues = [];
       console.log(id)
-      retrieveService.getVenuesForDropDown()
-
-      // let arrShows = []
-      // // get shows for selected venue
-      // $http.get('/api/retrieve/venue/' + id + '/shows')
-      //   .then(function(response) {
-      //     console.log(response.data)
-      //     let shows = response.data
-      //
-      //     for (let show of shows) {
-      //
-      //     }
-      //
-      //   })
-      //   .catch(function(error) {
-      //     console.log(error)
-      //   })
     }
 
 
