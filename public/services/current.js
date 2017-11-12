@@ -7,6 +7,7 @@ angular
 
 function currentService() {
   vm = this;
+  this.cities = [];
   this.venues = [];
   this.shows = [];
   this.artists = [];
@@ -17,9 +18,9 @@ function currentService() {
 
   this.relevanceMode = true;
 
-  this.removeArtist = function(index){
-    console.log(index)
-    this.artists.splice(index,1);
-    console.log(this.artists);
-  }
+  // this.removeArtist = function(index){
+  //   console.log(index)
+  //   this.artists.splice(index,1);
+  //   console.log(this.artists);
+  // }
 }

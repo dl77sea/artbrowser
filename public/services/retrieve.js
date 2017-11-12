@@ -14,9 +14,7 @@ function retrieveService($http, currentService) {
         venues = venuesResponse.data;
         return self.getShows(cityId)
       })
-      //does this execute promiseCalls from getShows.then ?
       .then(function(responseShows) {
-        // console.log("responseShows then from retRenderVenues")
         let venuesWithShows = []
         for(let i=0; i < responseShows.length; i++) {
           // console.log(show.data)
@@ -25,7 +23,7 @@ function retrieveService($http, currentService) {
           }
         }
         currentService.venues = venuesWithShows;
-        console.log("from info-venue: ", vm.venues)
+        console.log("from info-venue: currentService.venues: ", currentService.venues)
       })
       .catch(function(error) {
         console.log("error retrieving venues by city: ", error)
@@ -97,7 +95,7 @@ function retrieveService($http, currentService) {
 
   this.getArtistsByShow = function(showId) {
     console.log("check getArtistsByShow gets called venuId: ", showId)
-    return $http.get('/api/retrieve/show/' + showId + '/artists')
+    return $http.post('/api/retrieve/show/' + showId + '/artists', {relevance: currentService.relevanceMode})
       .then(function(responseArtists) {
         console.log("this happened from getArtistsByShow: ", responseArtists)
         return responseArtists.data
@@ -116,7 +114,6 @@ function retrieveService($http, currentService) {
     console.log("entered patchRelevance: ", artistName, artistRelevance)
     bodyObj = { name: artistName, relevant: !artistRelevance }
     return $http.patch('/api/retrieve/artist/relevance', bodyObj)
-
   }
 
 }

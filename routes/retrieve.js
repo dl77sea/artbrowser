@@ -129,10 +129,12 @@ router.post('/venue/:id/shows', function(req, res, next) {
 
 
 
-router.get('/show/:id/artists', function(req, res, next) {
+router.post('/show/:id/artists', function(req, res, next) {
   let showId = req.params.id
+  console.log(req.body)
   // //console.log("from show/id/artists: ", showId)
   knex('artists').where('artsy_show_id', showId)
+    .where('artists.relevant', req.body.relevance)
     .then(function(artists) {
       res.send(artists)
     })

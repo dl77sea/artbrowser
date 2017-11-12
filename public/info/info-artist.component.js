@@ -54,6 +54,8 @@
         })
     }
 
+
+
     vm.clickRelevance = function(artistName, artistRelevance, i) {
       console.log("entered clickRelevance")
       console.log("-----------------------------------------")
@@ -63,12 +65,17 @@
       console.log("-----------------------------------------")
 
       let artsy_show_id = vm.artists[i].artsy_show_id
-      console.log("-------------++++++++", artsy_show_id)
-      vm.artists.splice(i,1);
-      console.log("artist got removed", vm.artists.length)
-      if(vm.artists.length === 0) {
-        vm.removeShow({showArtsyId: artsy_show_id});
-      }
+      console.log("----------rel---++++++++",vm.artists[i].relevant)
+      console.log("-------name------++++++++", vm.artists[i].name)
+      //patchRelevance = function(artistName, artistRelevance)
+      retrieveService.patchRelevance(vm.artists[i].name, vm.artists[i].relevant)
+        .then(function(response) {
+          vm.artists.splice(i,1);
+          console.log("artist got removed", vm.artists.length)
+          if(vm.artists.length === 0) {
+            vm.removeShow({showArtsyId: artsy_show_id});
+          }
+        })
 
       // retrieveService.
       // retrieveService.patchRelevance(artistName, artistRelevance)
