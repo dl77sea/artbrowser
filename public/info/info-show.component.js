@@ -5,7 +5,7 @@
       templateUrl: './info/info-show.template.html',
       bindings: {
         venueArtsyId: '=',
-        venueName: '='
+        removeVenue: '&'
       }
     })
 
@@ -13,6 +13,7 @@
 
   function controller($state, $http, retrieveService) {
     const vm = this
+
     // vm.shows = [];
 
     vm.$onInit = function() {
@@ -46,6 +47,33 @@
           // console.log(dateFrom.format('dddd, MMMM Do YYYY'))
           // console.log(moment.format((vm.shows[0].from)))
         })
+
+
+        vm.getShowIndex = function(artsyShowId) {
+          for(let i=0; i < vm.shows.length; i++) {
+            if (vm.shows[i].artsy_id === artsyShowId) {
+              return i
+            }
+          }
+        }
+
+
+
+        vm.removeShow = function(showArtsyId){
+          // console.log("removeShow from info-show numArtistsLeft: ", numArtistsLeft) //, numArtists, artsy_show_id)
+          console.log("removeShow from info-show artsyShowId: ", showArtsyId) //, numArtists, artsy_show_id)
+          console.log("removeShow from info-show show index: ", vm.getShowIndex(showArtsyId))
+
+          //get index of this show
+          let iShow = vm.getShowIndex(showArtsyId)
+          vm.shows.splice(iShow, 1)
+
+          //and remove venue also if no more shows left
+          if(vm.shows.length === 0) {
+            vm.removeVenue({venueArtsyId: vm.venueArtsyId});
+          }
+        }
+
 
     }
 

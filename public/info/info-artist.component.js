@@ -4,7 +4,8 @@
       controller: controller,
       templateUrl: './info/info-artist.template.html',
       bindings: {
-        showArtsyId: '='
+        showArtsyId: '=',
+        removeShow: '&'
       }
     })
 
@@ -34,13 +35,15 @@
               artists.push({
                 name: artist.name,
                 image_urls: artist.image_urls.images,
-                relevant: artist.relevant
-                // image_urls: artist.image_urls
+                relevant: artist.relevant,
+                artsy_show_id: artist.artsy_show_id
               })
             }
           }
           // console.log("response from getShowsByVenue from show-info: ", shows)
           vm.artists = artists;
+
+          console.log(vm.artists);
           for (let artist of vm.artists) {
             console.log("artist name: ", artist.name)
             console.log("artist images: ")
@@ -53,12 +56,27 @@
 
     vm.clickRelevance = function(artistName, artistRelevance, i) {
       console.log("entered clickRelevance")
-      retrieveService.patchRelevance(artistName, artistRelevance)
-      .then(function (result) {
-        console.log("result from retrieveService.patchRelevance: ", result)
-        vm.artists[i].relevant = result.data[0].relevant
-        retrieveService.reRenderVenues()
-      })
+      console.log("-----------------------------------------")
+      console.log("vm.artists: ", vm.artists)
+      console.log("vm.showArtsyId: ", vm.showArtsyId)
+      console.log("currentService.venues: ", currentService.venues)
+      console.log("-----------------------------------------")
+
+      let artsy_show_id = vm.artists[i].artsy_show_id
+      console.log("-------------++++++++", artsy_show_id)
+      vm.artists.splice(i,1);
+      console.log("artist got removed", vm.artists.length)
+      if(vm.artists.length === 0) {
+        vm.removeShow({showArtsyId: artsy_show_id});
+      }
+
+      // retrieveService.
+      // retrieveService.patchRelevance(artistName, artistRelevance)
+      // .then(function (result) {
+      //   console.log("result from retrieveService.patchRelevance: ", result)
+      //   vm.artists[i].relevant = result.data[0].relevant
+      //   retrieveService.reRenderVenues()
+      // })
     }
 
   }
