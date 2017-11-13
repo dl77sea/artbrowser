@@ -58,15 +58,16 @@
 </header>
 <main>
   <!-- <div style="height: 100vh; display: relative;"> -->
-  <a class="fixtext">blarf</a>
+
+  <a class="fixtext" ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show irrelevant entries</a>
+  <a class="fixtext" ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show relevant entries</a>
+
     <div class="container" style="transform: translate(0,0); height: 100%">
     <!-- <div class="container"> -->
       <!-- why use ui-view here instead of just <info-venue>-->
       <!-- <ui-view venues="venues"></ui-view> -->
       <!-- <ui-view></ui-view> -->
       <info-venue></info-venue>
-      <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show entries marked irrelevant</a>
-      <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show entries marked relevant</a>
     </div>
 
   <!-- </div> -->
