@@ -29,7 +29,6 @@
       let thisVenueIndex = vm.getVenueIndex(venueArtsyId)
       console.log("index of this venue in venues: ", thisVenueIndex )
       currentService.venues.splice(thisVenueIndex, 1)
-
     }
 
     vm.getVenueIndex = function(venueArtsyId) {
