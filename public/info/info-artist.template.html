@@ -9,12 +9,13 @@
   <p ng-class="" ng-show="artist.relevant == false && $ctrl.relevanceMode == false">artists for this show: {{artist.name}}</p>
   <!-- {{artist}} -->
   <!-- {{artist.image_urls}} -->
-
-  <div class="img-layout" ng-if="artist.relevant == true && $ctrl.relevanceMode == true" ng-repeat="image in artist.image_urls[0]">
-    <img src={{image}} alt="image of artist work" class="sample-img">
-  </div>
-  <div class="img-layout" ng-if="artist.relevant == false && $ctrl.relevanceMode == false" ng-repeat="image in artist.image_urls[0]">
-    <img src={{image}} alt="image of artist work" class="sample-img">
+  <div class="img-layout">
+    <div ng-if="artist.relevant == true && $ctrl.relevanceMode == true" ng-repeat="image in artist.image_urls[0]">
+      <img src={{image}} alt="image of artist work" class="sample-img">
+    </div>
+    <div ng-if="artist.relevant == false && $ctrl.relevanceMode == false" ng-repeat="image in artist.image_urls[0]">
+      <img src={{image}} alt="image of artist work" class="sample-img">
+    </div>
   </div>
 
   <div class="artist-controls">

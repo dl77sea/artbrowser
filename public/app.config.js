@@ -12,15 +12,17 @@
     $stateProvider
       .state({
         name: 'navigation',
-        abstract: true,
+        // abstract: true,
+        url: '/',
         component: 'navigation'
       })
-      .state({
-        name: 'info',
-        url: '/',
-        parent: 'navigation',
-        component: 'infoVenue'
-      })
+      // .state({
+      //   name: 'info',
+      //   url: '/',
+      //   parent: 'navigation',
+      //   component: 'infoVenue'
+      // })
+
       // .state({
       //   name: 'admin',
       //   url: '/admin',

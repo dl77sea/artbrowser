@@ -7,7 +7,7 @@
         <a href="#" class="brand-logo">Logo</a>
 
 
-          <!--
+        <!--
           <a class='dropdown-button btn' href='#' data-activates='venues'>Drop Me!</a>
           <ul id='venues' class='dropdown-content'>
             <li><a href="#!">one</a></li>
@@ -26,16 +26,16 @@
 
           -->
 
-          <ul class="right">
-            <div class="dropdown">
-              <button class="dropbtn">Dropdown</button>
-              <div class="dropdown-content">
-                <p ng-repeat="city in $ctrl.currentService.cities track by $index" ng-click="$ctrl.clickCityItem(city.id)" class="dropdown-item" href="#">{{city.name}}</p>
-                <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}} -->
-                <!-- <p class="dropdown-item" href="#">Link 3</p> -->
-              </div>
+        <ul class="right">
+          <div class="dropdown">
+            <button class="dropbtn">Dropdown</button>
+            <div class="dropdown-content">
+              <p ng-repeat="city in $ctrl.currentService.cities track by $index" ng-click="$ctrl.clickCityItem(city.id)" class="dropdown-item" href="#">{{city.name}}</p>
+              <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}} -->
+              <!-- <p class="dropdown-item" href="#">Link 3</p> -->
             </div>
-          </ul>
+          </div>
+        </ul>
 
 
 
@@ -57,12 +57,17 @@
   </div>
 </header>
 <main>
-  <div class="container">
-    <!-- why use ui-view here instead of just <info-venue>-->
-    <!-- <ui-view venues="venues"></ui-view> -->
-    <ui-view></ui-view>
-    <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show entries marked irrelevant</a>
-    <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show entries marked relevant</a>
+  <!-- <div style="height: 100vh; display: relative;"> -->
+  <a class="fixtext">blarf</a>
+    <div class="container" style="transform: translate(0,0); height: 100%">
+    <!-- <div class="container"> -->
+      <!-- why use ui-view here instead of just <info-venue>-->
+      <!-- <ui-view venues="venues"></ui-view> -->
+      <!-- <ui-view></ui-view> -->
+      <info-venue></info-venue>
+      <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show entries marked irrelevant</a>
+      <a ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show entries marked relevant</a>
+    </div>
 
-  </div>
+  <!-- </div> -->
 </main>
