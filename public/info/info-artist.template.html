@@ -9,17 +9,19 @@
   <p ng-show="artist.relevant == false && $ctrl.relevanceMode == false">{{$ctrl.strDisclaim}}{{artist.name}}</p>
   <!-- {{artist}} -->
   <!-- {{artist.image_urls}} -->
-  <div class="img-layout">
-    <div ng-repeat="image in artist.image_urls[0]">
-      <!-- <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a> -->
-      <img class="sample-img" src={{image}} alt="image of artist work">
+  <div style="margin-bottom: 3rem">
+    <div class="img-layout">
+      <div ng-repeat="image in artist.image_urls[0]">
+        <!-- <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a> -->
+        <img class="sample-img" src={{image}} alt="image of artist work">
+      </div>
+    </div>
+    <div class="artist-controls" style="float: right">
+      <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mark irrelevant</a>
+      <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mark relevant</a>
     </div>
   </div>
 
-  <div class="artist-title">
-    <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mark irrelevant</a>
-    <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mark relevant</a>
-  </div>
   <ng-include src="'./modals/imageview.template.html'"></ng-include>
   <!-- artist.relevant: {{artist.relevant}} currentService.relevanceMode: {{$ctrl.currentService.relevanceMode}} -->
 </div>

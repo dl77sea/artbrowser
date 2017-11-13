@@ -142,7 +142,8 @@ summary {
 }
 
 .artist-controls {
-  display: block;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .artist-title {
