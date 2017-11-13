@@ -121,6 +121,8 @@ summary {
 .sample-img {
   display: inline;
   padding: 1.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
   /*min-width: 250px;*/
   /*max-width: 250px;*/
   max-width: 100%;
@@ -143,6 +145,10 @@ summary {
   display: block;
 }
 
+.artist-title {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
 
 /*show layout*/
 
@@ -150,16 +156,24 @@ summary {
   display: inline;
 }
 
-
 /*venue layout*/
+.venue-border {
+  margin-left: 0.1rem;
+  border-left: 12px;
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 0;
+  border-style: solid;
+  padding: 1rem;
+}
 
 .venue-container {
   display: relative;
 }
 
 .venue-title {
-  display: inline;
-  margin-left: 1.5rem;
+  margin-bottom: 0.25rem;
+  margin-top: 3rem;
 }
 
 .venue-date {
@@ -170,16 +184,13 @@ summary {
   margin-right: 1.5rem;
 }
 
-
 /* nav bar */
-
 .brand-logo {
   margin-left: 1.5rem;
 }
 
 
 /* fixed footer */
-
 .fixtext {
   position: fixed;
   bottom: 0;

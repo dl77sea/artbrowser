@@ -1,23 +1,29 @@
-
-  <!-- {{show.name}} -->
+<!-- {{show.name}} -->
 <!-- <p>from info-show: {{$ctrl.venueArtsyId}}</p> -->
 
-<div class="debug-border" ng-repeat="show in $ctrl.shows">
+<div class="venue-border" ng-repeat="show in $ctrl.shows">
   <!-- <p class=venue-title>Venue Title: {{$ctrl.venueName}} </p> -->
-  <p class="show-title">show name: {{show.name}}</p>
-  <p>from: {{$ctrl.dateFrom.format('dddd, MMMM Do YYYY')}}</p>
-  <p>to: {{$ctrl.dateTo.format('dddd, MMMM Do YYYY')}}</p>
+
+  <div style="display: block; margin-bottom: 1rem">
+    <h5 class="show-title">{{show.name}}</h5>
+    <div style="display: inline; float: right">
+      <h5 class="show-title">{{$ctrl.dateFrom.format('MMMM Do')}}</h5>
+      <h5 class="show-title"> - {{$ctrl.dateTo.format('MMMM Do YYYY')}}</h5>
+    </div>
+  </div>
   <!-- <p ng-if="show.description !== '' "class="show-title">show description: {{show.description}}</p> -->
 
-  <details>
-    <summary>Description</summary>
-    <p>{{show.description}}</p>
-  </details>
+  <div style="display: block">
+    <details>
+      <summary>Description</summary>
+      <p>{{show.description}}</p>
+    </details>
 
-  <details>
-    <summary>Press Release</summary>
-    <p>{{show.press_release}}</p>
-  </details>
+    <details>
+      <summary>Press Release</summary>
+      <p>{{show.press_release}}</p>
+    </details>
+  </div>
 
   <!-- <p ng-if="show.description == '' "class="show-title">show description: not provided</p> -->
 

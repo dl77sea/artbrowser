@@ -4,18 +4,19 @@
 
 <!-- <p>from info-artist showArtsyId: {{$ctrl.showArtsyId}}</p> -->
 
-<div class="debug-border" ng-repeat="artist in $ctrl.artists track by $index">
-  <p ng-show="artist.relevant == true && $ctrl.relevanceMode == true">artists for this show: {{artist.name}}</p>
-  <p ng-class="" ng-show="artist.relevant == false && $ctrl.relevanceMode == false">artists for this show: {{artist.name}}</p>
+<div ng-repeat="artist in $ctrl.artists track by $index">
+  <p class="artist-title" ng-show="artist.relevant == true && $ctrl.relevanceMode == true">{{$ctrl.strDisclaim}}{{artist.name}}</p>
+  <p ng-show="artist.relevant == false && $ctrl.relevanceMode == false">{{$ctrl.strDisclaim}}{{artist.name}}</p>
   <!-- {{artist}} -->
   <!-- {{artist.image_urls}} -->
   <div class="img-layout">
     <div ng-repeat="image in artist.image_urls[0]">
-      <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a>
+      <!-- <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a> -->
+      <img class="sample-img" src={{image}} alt="image of artist work">
     </div>
   </div>
 
-  <div class="artist-controls">
+  <div class="artist-title">
     <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mark irrelevant</a>
     <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mark relevant</a>
   </div>

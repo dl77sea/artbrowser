@@ -23,6 +23,7 @@
   function controller($state, $http, retrieveService, currentService) {
     const vm = this
     vm.currentService = currentService;
+    vm.strDisclaim = "Images that may represent artwork by "
 
     console.log("@@@@@@",currentService.relevanceMode)
 

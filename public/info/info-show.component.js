@@ -14,6 +14,7 @@
   function controller($state, $http, retrieveService) {
     const vm = this
 
+
     // vm.shows = [];
 
     vm.$onInit = function() {
