@@ -10,11 +10,8 @@
   <!-- {{artist}} -->
   <!-- {{artist.image_urls}} -->
   <div class="img-layout">
-    <div ng-if="artist.relevant == true && $ctrl.relevanceMode == true" ng-repeat="image in artist.image_urls[0]">
-      <img src={{image}} alt="image of artist work" class="sample-img">
-    </div>
-    <div ng-if="artist.relevant == false && $ctrl.relevanceMode == false" ng-repeat="image in artist.image_urls[0]">
-      <img src={{image}} alt="image of artist work" class="sample-img">
+    <div ng-repeat="image in artist.image_urls[0]">
+      <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a>
     </div>
   </div>
 
@@ -22,6 +19,6 @@
     <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == true && $ctrl.currentService.relevanceMode == true">mark irrelevant</a>
     <a ng-click="$ctrl.clickRelevance(artist.name, artist.relevant, $index)" ng-if="artist.relevant == false && $ctrl.currentService.relevanceMode == false">mark relevant</a>
   </div>
-
+  <ng-include src="'./modals/imageview.template.html'"></ng-include>
   <!-- artist.relevant: {{artist.relevant}} currentService.relevanceMode: {{$ctrl.currentService.relevanceMode}} -->
 </div>

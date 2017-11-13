@@ -8,6 +8,15 @@
         removeShow: '&'
       }
     })
+    // .directive('modalInit', function() {
+    //   return {
+    //     link: function($scope, element, attrs) {
+    //       $(document).ready(function() {
+    //         $('.modal').modal();
+    //       });
+    //     }
+    //   }
+    // });
 
   controller.$inject = ['$state', '$http', 'retrieveService', 'currentService'];
 
@@ -52,8 +61,16 @@
             }
           }
         })
+
     }
 
+    vm.clickImg = function() {
+      console.log("ok")
+      $(document).ready(function() {
+        $('.modal').modal();
+      });
+      $('#modal1').modal('open');
+    }
 
 
     vm.clickRelevance = function(artistName, artistRelevance, i) {

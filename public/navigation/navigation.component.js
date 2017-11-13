@@ -7,6 +7,7 @@
     })
 
 
+
   controller.$inject = ['$state', '$http', 'retrieveService', 'currentService', '$scope', '$location', '$anchorScroll'];
   // app.controller("first", function($scope, sharedScope) {
   //     $scope.data1 = sharedScope.data;

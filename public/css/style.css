@@ -114,7 +114,9 @@ main {
 
 /* artist layout */
 
-
+summary {
+  outline: none;
+}
 
 .sample-img {
   display: inline;
