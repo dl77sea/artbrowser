@@ -33,7 +33,9 @@
               name: show.name,
               artsy_id: show.show_artsy_id,
               from: show.from,
-              to: show.to
+              to: show.to,
+              description: show.description,
+              press_release: show.press_release
             })
           }
 

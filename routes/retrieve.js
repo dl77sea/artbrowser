@@ -110,13 +110,15 @@ router.post('/venue/:id/shows', function(req, res, next) {
     .distinct('shows.name')
     .distinct('shows.from')
     .distinct('shows.to')
+    .distinct('shows.description')
+    .distinct('shows.press_release')
     .leftJoin('artists', 'artists.artsy_show_id', 'shows.artsy_id')
     .whereNotNull('artists.name')
     .andWhere('artists.relevant', req.body.relevance)
     .andWhere('shows.venue_artsy_id', venueId)
     // .groupBy('shows.name')
     .then(function(shows) {
-      console.log(shows)
+      console.log("SHOWS******",shows)
       //get venues with shows
       res.send(shows)
     })

@@ -244,8 +244,8 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
             venue_artsy_id: partner,
             artsy_id: show.id,
             name: show.name,
-            // description: show.description,
-            // press_release: show.press_release,
+            description: show.description,
+            press_release: show.press_release,
             from: show.start_at,
             to: show.end_at
           }

@@ -82,6 +82,7 @@ function retrieveService($http, currentService) {
   this.getShowsByVenue = function(venueId) {
     return $http.post('/api/retrieve/venue/' + venueId + '/shows', {relevance: currentService.relevanceMode})
       .then(function(responseShows) {
+        console.log("**************responseShows DATA*****************", responseShows)
         return responseShows.data
       })
   }

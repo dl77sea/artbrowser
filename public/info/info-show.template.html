@@ -7,5 +7,8 @@
   <p class="show-title">show name: {{show.name}}</p>
   <p>from: {{$ctrl.dateFrom.format('dddd, MMMM Do YYYY')}}</p>
   <p>to: {{$ctrl.dateTo.format('dddd, MMMM Do YYYY')}}</p>
+  <p ng-if="show.description !== '' "class="show-title">show description: {{show.description}}</p>
+  <p ng-if="show.description == '' "class="show-title">show description: not provided</p>
+  <p class="show-title">show press release: {{show.press_release}}</p>
   <info-artist show-artsy-id="show.artsy_id" remove-show="$ctrl.removeShow(showArtsyId)"></info-artist>
 </div>
