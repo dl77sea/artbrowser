@@ -26,21 +26,32 @@
 
           -->
 
-        <ul class="right">
-          <!-- <div ng-mouseleave="toggleTriangle = false" ng-mouseenter="toggleTriangle = true" class="dropdown"> -->
+        <ul class="right helper-right">
           <div class="dropdown" ng-mouseenter="toggleTriangle=true; toggleContentVis=true;" ng-mouseleave="toggleTriangle=false; toggleContentVis=false">
-            <!-- <button class="dropbtn"><ul><li>Dropdown</li><li style="margin-left: 0.5rem; font-size: 0.75rem;">&#x25E2;</li></ul></button> -->
             <button  ng-click="toggleContentVis = !toggleContentVis; toggleTriangle = !toggleTriangle" class="dropbtn" style="vertical-align: bottom"><span style="display: inline">{{$ctrl.currentService.cityName}}</span>
               <span ng-show="!toggleTriangle" style="display: inline; padding: 0; margin-left: 0.5rem; font-size: .7rem; line-height: 0.7rem;">&#x25E2;</span>
               <span ng-show="toggleTriangle" style="display: inline; padding: 0; margin-left: 0.5rem; font-size: .7rem; line-height: 0.7rem;">&#x25BC;</span>
             </button>
             <div class="dropdown-content" ng-click="toggleContentVis = !toggleContentVis; toggleTriangle = !toggleTriangle" ng-show="toggleContentVis">
               <p ng-repeat="city in $ctrl.currentService.cities track by $index" ng-click="$ctrl.clickCityItem(city.id, city.name)" class="dropdown-item" href="#">{{city.name}}</p>
-              <!-- <p class="dropdown-item" href="#">Link 2</p> {{venue.name}} -->
-              <!-- <p class="dropdown-item" href="#">Link 3</p> -->
             </div>
           </div>
         </ul>
+
+
+        <ul class="right">
+          <div class="dropdown" ng-mouseenter="toggleVenueTriangle=true; toggleVenueContentVis=true;" ng-mouseleave="toggleVenueTriangle=false; toggleVenueContentVis=false">
+            <button ng-click="toggleVenueContentVis = !toggleVenueContentVis; toggleVenueTriangle = !toggleVenueTriangle" class="dropbtn" style="vertical-align: bottom"><span style="display: inline">{{$ctrl.currentService.venueName}}</span>
+              <span ng-show="!toggleVenueTriangle" style="display: inline; padding: 0; margin-left: 0.5rem; font-size: .7rem; line-height: 0.7rem;">&#x25E2;</span>
+              <span ng-show="toggleVenueTriangle" style="display: inline; padding: 0; margin-left: 0.5rem; font-size: .7rem; line-height: 0.7rem;">&#x25BC;</span>
+            </button>
+            <div class="dropdown-content" ng-click="toggleVenueContentVis = !toggleVenueContentVis; toggleVenueTriangle = !toggleVenueTriangle" ng-show="toggleVenueContentVis">
+              <p ng-repeat="venue in $ctrl.currentService.venues track by $index" ng-click="$ctrl.clickVenueItem(venue.artsy_id, venue.name); toggleVenueContentVis=false" class="dropdown-item" href="#">{{venue.name}}</p>
+            </div>
+          </div>
+        </ul>
+
+
 
 
         <!--

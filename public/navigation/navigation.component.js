@@ -49,12 +49,13 @@
       retrieveService.reRenderVenues()
     }
 
-    vm.clickVenueItem = function(id) {
+    vm.clickVenueItem = function(id, name) {
       console.log(id)
       console.log("$http: ", $http)
       console.log("$location: ", $location)
       //use id to trigger scroll to
       // var scrollToHash = 'venue' + id;
+      currentService.venueName = name
       $location.hash('venue' + id);
       // $location.hash();
       $anchorScroll();
