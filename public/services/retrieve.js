@@ -2,11 +2,12 @@ angular
   .module('app')
   .service('retrieveService', retrieveService)
 
-retrieveService.$inject = ['$http', 'currentService']; //how to get currentService in here so can pull in currentService.relevanceMode ?
+retrieveService.$inject = ['$http', 'currentService', '$window']; //how to get currentService in here so can pull in currentService.relevanceMode ?
 
-function retrieveService($http, currentService) {
+function retrieveService($http, currentService, $window) {
 
   this.reRenderVenues = function() {
+
     let cityId = currentService.cityId
     const self = this
     this.getVenues(cityId)
@@ -24,6 +25,11 @@ function retrieveService($http, currentService) {
         }
         currentService.venues = venuesWithShows;
         console.log("from info-venue: currentService.venues: ", currentService.venues)
+        // $location.hash('venue' + id);
+        // $location.hash();
+        // $anchorScroll();
+        console.log("pageYoffset")
+        $window.scrollTo(0,0)
       })
       .catch(function(error) {
         console.log("error retrieving venues by city: ", error)
