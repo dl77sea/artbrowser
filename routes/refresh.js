@@ -277,14 +277,9 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
 
       if (show.name !== null) {
         let possibleNames = extractPossibleNames(show.name)
-        // possibleNames = ['Distant Places', 'Pablo Picasso', 'Philip Govedare']
-        //console.log("FOUND NAMES IN NAMES")
-        //console.log("-----possibleNames from show/id/artists: ", possibleNames)
         let axiosCalls = getGqsCalls(possibleNames)
-        // //console.log("num getGqsCalls: " axiosCalls.length)
         //Google Query Search for possible artists from possible names
         //and insert the possible artists into artists table
-
         let artists = [];
 
         Promise.all(axiosCalls)
@@ -292,9 +287,7 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
             let axiosCalls = []
             //gqsResults in same order as possibleNames
             //checkForArtists returns array of objects of names and GQS search string name found to be artist on
-
             let arrArtistObjs = checkForArtists(possibleNames, gqsResults)
-
             //submit artists to artists table if checkForArtists found artists
             if (arrArtistObjs.length > 0) {
               //from data returned from checkForArtists, build artist objects representing row in artists table
@@ -308,15 +301,11 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
                     images: []
                   }
                 }
-                //console.log("artist: ", artist)
                 artists.push(artist)
               }
               //if artists were found, get image urls for them
-
               //for each artist found, build a Google Image Search query urls
-
-              //console.log('$$$$$$$$$$', artists.length)
-//https://www.google.com/search?safe=active&q=bo+christian+art+&tbm=isch
+              //https://www.google.com/search?safe=active&q=bo+christian+art+&tbm=isch
               for (let artistObj of artists) {
                 let strGisBaseUrl = "https://www.google.com/search?safe=active&q="
                 let strGisEndUrl = "&tbm=isch"
@@ -325,8 +314,6 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
                 let searchWord = artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)]
                 // var artistTypesToCheckFor = ["+p", "+a"];
                 // var artistTypesSearchWords = ["photos", "art"]
-
-
                 let strUrl = strGisBaseUrl + (artistObj.name.replace(' ', '+')) + '+' + searchWord + strGisEndUrl
                 console.log(">>>>>>>>>>!!!", strUrl)
                 let options = {
