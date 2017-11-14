@@ -4,7 +4,7 @@
 
 <!-- ng-repeat="item in (filteredItems = (items | orderBy:'order_prop' | filter:query | limitTo:4))"> -->
 
-<div id="venue{{venue.artsy_id}}" ng-repeat="venue in $ctrl.currentService.venues">
+<div class="venue-container" id="venue{{venue.artsy_id}}" ng-repeat="venue in $ctrl.currentService.venues">
 
   <h4 class="venue-title">{{venue.name}}</h4>
   <info-show venue-artsy-id="venue.artsy_id" remove-venue="$ctrl.removeVenue(venueArtsyId)"></info-show>

@@ -163,9 +163,13 @@ summary {
   border-style: solid;
   padding: 1rem;
 }
-.lsat-venue {
-  background-color: red;
+
+.venue-container:last-child {
+  /*background-color: red;*/
+  margin-bottom: 6rem;
 }
+
+/*.venue-border:nth-last-child(an+b)*/
 
 .venue-title {
   font-weight: 400;
