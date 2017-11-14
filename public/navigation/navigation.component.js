@@ -16,6 +16,7 @@
   function controller($state, $http, retrieveService, currentService, $scope, $location, $anchorScroll) {
     const vm = this
     vm.currentService = currentService;
+    vm.buttonTriangle = '&#x25E2;'
     // vm.venues = [];
     // vm.cities = [];
 
@@ -29,18 +30,22 @@
         .then(function(cities) {
           console.log("cities from navigation: ", cities)
           for(city of cities.data) {
-            console.log (city.name);
+            console.log ("****", city);
+
+            if(currentService.cityId === city.id) {currentService.cityName = city.name}
           }
           currentService.cities = cities.data
+          console.log("$$$", currentService.cityName)
         })
 
       retrieveService.reRenderVenues()
 
     }
 
-    vm.clickCityItem = function(id) {
+    vm.clickCityItem = function(id, name) {
       console.log(id)
       currentService.cityId = id
+      currentService.cityName = name
       retrieveService.reRenderVenues()
     }
 

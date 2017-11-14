@@ -14,6 +14,7 @@ function currentService() {
 
 
   this.cityId = 1 //"sea" default
+  this.cityName = "";
   // this.cityId = 4 //"cph"
 
   this.relevanceMode = true;
