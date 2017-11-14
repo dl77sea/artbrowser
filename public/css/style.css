@@ -1,6 +1,7 @@
 /*markup over rides*/
 a {
   color: black;
+  cursor: pointer;
 }
 
 a:hover {
