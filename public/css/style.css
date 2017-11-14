@@ -87,6 +87,7 @@ button:focus {
   color: black;
   text-decoration: none;
   display: block;
+  cursor: pointer;
 }
 
 /* Change color of dropdown links on hover */
@@ -162,9 +163,8 @@ summary {
   border-style: solid;
   padding: 1rem;
 }
-
-.venue-container {
-  display: relative;
+.lsat-venue {
+  background-color: red;
 }
 
 .venue-title {

@@ -3,12 +3,14 @@
 
 <div class="venue-border" ng-repeat="show in $ctrl.shows">
   <!-- <p class=venue-title>Venue Title: {{$ctrl.venueName}} </p> -->
+  <div style="display: block; width: 100%">
+    <div style="display: inline-block; margin-bottom: 1rem; width: 50%;">
+      <h5 class="show-title">{{show.name}}</h5>
+    </div>
 
-  <div style="display: block; margin-bottom: 1rem">
-    <h5 class="show-title">{{show.name}}</h5>
-    <div style="display: inline; float: right">
-      <h5 class="show-title">{{$ctrl.dateFrom.format('MMMM Do')}}</h5>
-      <h5 class="show-title"> - {{$ctrl.dateTo.format('MMMM Do YYYY')}}</h5>
+
+    <div style="display: block; float: right;">
+      <h5 class="show-title right-align">{{$ctrl.dateFrom.format('MMMM Do')}} - {{$ctrl.dateTo.format('MMMM Do YYYY')}}</h5>
     </div>
   </div>
   <!-- <p ng-if="show.description !== '' "class="show-title">show description: {{show.description}}</p> -->
