@@ -44,13 +44,13 @@
 
     vm.clickCityItem = function(id, name) {
       console.log(id)
+      currentService.venueName = "Gallery"
       currentService.cityId = id
       currentService.cityName = name
       retrieveService.reRenderVenues()
     }
 
     vm.clickVenueItem = function(id, name) {
-      currentService.venueName = "Gallery"
       console.log(id)
       console.log("$http: ", $http)
       console.log("$location: ", $location)
