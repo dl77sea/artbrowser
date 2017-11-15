@@ -14,11 +14,19 @@
     "nodemon": "^1.12.1",
     "pg": "^7.3.0"
   },
-  "devDependencies": {},
+  "engines": {
+    "node": "8.2.1"
+  },
+  "devDependencies": {
+    "foreman": "^2.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "knex": "knex"
+    "knex": "knex",
+    "heroku-postbuild": "knex migrate:latest",
+    "nf": "nf start",
+    "nodemon": "nodemon server.js"
   },
   "repository": {
     "type": "git",
