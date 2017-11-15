@@ -165,6 +165,9 @@ summary {
 }
 
 /*show layout*/
+/*summary {
+  cursor: pointer;
+}*/
 
 .show-title {
   display: inline;
