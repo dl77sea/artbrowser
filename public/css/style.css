@@ -114,7 +114,7 @@ button:focus {
 
 /* footer for summary details */
 .summary-footer {
-  padding-bottom: 3rem;
+  /*padding-bottom: 3rem;*/
 }
 
 /* artist layout */
@@ -146,13 +146,21 @@ summary {
   align-items: center;
 }
 
+/*.artist-controls:last-of-type {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}*/
+
 .artist-controls {
   margin-top: 0.5rem;
   margin-bottom: 1rem;
 }
 
+.artist-container {
+  margin-bottom: 3rem;
+}
 .artist-title {
-  margin-top: 1rem;
+  margin-top: 3rem;
   margin-bottom: 1rem;
 }
 

@@ -16,12 +16,12 @@
   <!-- <p ng-if="show.description !== '' "class="show-title">show description: {{show.description}}</p> -->
 
   <div style="display: block">
-    <details>
+    <details ng-show="show.description !== ''">
       <summary>Description</summary>
       <p>{{show.description}}</p>
     </details>
 
-    <details>
+    <details ng-show="show.press_release !== ''">
       <summary>Press Release</summary>
       <p class="summary-footer">{{show.press_release}}</p>
     </details>
