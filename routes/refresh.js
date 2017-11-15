@@ -49,7 +49,7 @@ let cph = {
 }
 
 let cities = {
-  // sea,
+  sea,
   cph
 }
 
@@ -125,6 +125,7 @@ router.get('/allvenues/shows', function(req, res, next) {
 })
 
 router.get('/allvenues/artists', function(req, res, next) {
+  console.log("entered /allvenues/artists")
   let promiseCalls = []
   knex('shows').select('artsy_id')
     .then(function(shows) {
@@ -267,15 +268,19 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
 
 //inserts an artist(s) into artists table by artsy show id
 router.get('/show/:id/artists', authenticate, function(req, res, next) {
+  var bArtistsFound = false;
+  console.log("entered /show/id/artists")
   //console.log("entered /show/:id/artists")
   let showId = req.params.id
   //console.log(showId)
   knex('shows').where('artsy_id', showId)
     .then(function(result) {
       //console.log(result)
+      console.log("entered then for /show/id/artists")
       let show = result[0]
 
       if (show.name !== null) {
+        console.log("entered then for /show/id/artists on name")
         let possibleNames = extractPossibleNames(show.name)
         let axiosCalls = getGqsCalls(possibleNames)
         //Google Query Search for possible artists from possible names
@@ -320,9 +325,7 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
                   method: 'GET',
                   url: strUrl,
                   headers: {
-                    // 'accept': 'text/html,application/xhtml+xml,application/xml',
                     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
-                    // 'X-Xapp-Token': token
                   }
                 }
                 axiosCalls.push(axios(options))
@@ -332,79 +335,164 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
             //get urls for each artist with promise all
             //(order maintained, 1:1 with artists)
             //map urls to artists
-            // //console.log('&&&&&&&&', axiosCalls)
-            // //console.log('!!!!!!!!!!!!', axiosCalls)
             return Promise.all(axiosCalls) //should this be returned?
           })
           .then(function(responses) {
-
-            // //console.log("=======>>>>>>>>>", responses.length)
-            // //console.log("=======>>>>>>>>>", artists.length)
-
             for (let i = 0; i < responses.length; i++) {
-              // //console.log("=======", i)
-              // //console.log("---", responses)
-
-              // artists[i].image_urls.push(getImgUrls(response))
               let arrImgUrls = getImgUrls(responses[i])
-              //console.log("+++++%%%%%%%", arrImgUrls)
-              //console.log("-------------", artists[i])
+              artists[i].image_urls.images.push(arrImgUrls)
+            }
+            bArtistsFound = true;
+            return knex.insert(artists).into('artists').returning('*')
+          })
+          .then(function(arrArtistObjs) {
+            // does not matter if insert was empty
+            res.send(arrArtistsObjs)
+          })
+          .catch(function(error) {
+            res.send(false)
+          })
+      } else if (show.description !== null && bArtistsFound === false) {
+        console.log("entered then for /show/id/artists on desc")
+        let possibleNames = extractPossibleNames(show.description)
+        let axiosCalls = getGqsCalls(possibleNames)
+        //Google Query Search for possible artists from possible names
+        //and insert the possible artists into artists table
+        let artists = [];
+
+        Promise.all(axiosCalls)
+          .then(function(gqsResults) {
+            let axiosCalls = []
+            //gqsResults in same order as possibleNames
+            //checkForArtists returns array of objects of names and GQS search string name found to be artist on
+            let arrArtistObjs = checkForArtists(possibleNames, gqsResults)
+            //submit artists to artists table if checkForArtists found artists
+            if (arrArtistObjs.length > 0) {
+              //from data returned from checkForArtists, build artist objects representing row in artists table
+              for (let artistObj of arrArtistObjs) {
+                let artist = {
+                  name: artistObj.name,
+                  found_on: artistObj.found_on,
+                  relevant: true,
+                  artsy_show_id: showId,
+                  image_urls: {
+                    images: []
+                  }
+                }
+                artists.push(artist)
+              }
+              //if artists were found, get image urls for them
+              //for each artist found, build a Google Image Search query urls
+              //https://www.google.com/search?safe=active&q=bo+christian+art+&tbm=isch
+              for (let artistObj of artists) {
+                let strGisBaseUrl = "https://www.google.com/search?safe=active&q="
+                let strGisEndUrl = "&tbm=isch"
+
+                console.log('artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)', artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)])
+                let searchWord = artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)]
+                // var artistTypesToCheckFor = ["+p", "+a"];
+                // var artistTypesSearchWords = ["photos", "art"]
+                let strUrl = strGisBaseUrl + (artistObj.name.replace(' ', '+')) + '+' + searchWord + strGisEndUrl
+                console.log(">>>>>>>>>>!!!", strUrl)
+                let options = {
+                  method: 'GET',
+                  url: strUrl,
+                  headers: {
+                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
+                  }
+                }
+                axiosCalls.push(axios(options))
+              }
+            }
+
+            //get urls for each artist with promise all
+            //(order maintained, 1:1 with artists)
+            //map urls to artists
+            return Promise.all(axiosCalls) //should this be returned?
+          })
+          .then(function(responses) {
+            for (let i = 0; i < responses.length; i++) {
+              let arrImgUrls = getImgUrls(responses[i])
+              artists[i].image_urls.images.push(arrImgUrls)
+            }
+            bArtistsFound = true;
+            return knex.insert(artists).into('artists').returning('*')
+          })
+          .then(function(arrArtistObjs) {
+            // does not matter if insert was empty
+            console.log()
+            res.send(true)
+          })
+          .catch(function(error) {
+            res.send(false)
+          })
+      } else if (show.press_release !== null && bArtistsFound === false) {
+        console.log("entered then for /show/id/artists on press")
+        let possibleNames = extractPossibleNames(show.press_release)
+        let axiosCalls = getGqsCalls(possibleNames)
+        //Google Query Search for possible artists from possible names
+        //and insert the possible artists into artists table
+        let artists = [];
+
+        Promise.all(axiosCalls)
+          .then(function(gqsResults) {
+            let axiosCalls = []
+            //gqsResults in same order as possibleNames
+            //checkForArtists returns array of objects of names and GQS search string name found to be artist on
+            let arrArtistObjs = checkForArtists(possibleNames, gqsResults)
+            //submit artists to artists table if checkForArtists found artists
+            if (arrArtistObjs.length > 0) {
+              //from data returned from checkForArtists, build artist objects representing row in artists table
+              for (let artistObj of arrArtistObjs) {
+                let artist = {
+                  name: artistObj.name,
+                  found_on: artistObj.found_on,
+                  relevant: true,
+                  artsy_show_id: showId,
+                  image_urls: {
+                    images: []
+                  }
+                }
+                artists.push(artist)
+              }
+              //if artists were found, get image urls for them
+              //for each artist found, build a Google Image Search query urls
+              //https://www.google.com/search?safe=active&q=bo+christian+art+&tbm=isch
+              for (let artistObj of artists) {
+                let strGisBaseUrl = "https://www.google.com/search?safe=active&q="
+                let strGisEndUrl = "&tbm=isch"
+
+                console.log('artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)', artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)])
+                let searchWord = artistTypesSearchWords[artistTypesToCheckFor.indexOf(artistObj.found_on)]
+                // var artistTypesToCheckFor = ["+p", "+a"];
+                // var artistTypesSearchWords = ["photos", "art"]
+                let strUrl = strGisBaseUrl + (artistObj.name.replace(' ', '+')) + '+' + searchWord + strGisEndUrl
+                console.log(">>>>>>>>>>!!!", strUrl)
+                let options = {
+                  method: 'GET',
+                  url: strUrl,
+                  headers: {
+                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
+                  }
+                }
+                axiosCalls.push(axios(options))
+              }
+            }
+
+            //get urls for each artist with promise all
+            //(order maintained, 1:1 with artists)
+            //map urls to artists
+            return Promise.all(axiosCalls) //should this be returned?
+          })
+          .then(function(responses) {
+            for (let i = 0; i < responses.length; i++) {
+              let arrImgUrls = getImgUrls(responses[i])
               artists[i].image_urls.images.push(arrImgUrls)
             }
             return knex.insert(artists).into('artists').returning('*')
           })
           .then(function(arrArtistObjs) {
-
             // does not matter if insert was empty
-            res.send(true)
-          })
-          .catch(function(error) {
-            //console.log(error)
-            res.send(false)
-          })
-      } else if (show.description !== null) {
-        let possibleNames = extractPossibleNames(show.description)
-        let axiosCalls = getGqsCalls(possibleNames)
-        Promise.all(axiosCalls)
-          .then(function(results) {
-            let names = checkForArtists(possibleNames, results)
-
-            let artists = [];
-            for (let name of names) {
-
-              let artist = {
-                first_name: name.split(' ')[0],
-                last_name: name.split(' ')[1]
-              }
-              artists.push(artist)
-            }
-            return knex.insert(artists).into('artists')
-          })
-          .then(function(result) {
-            res.send(true)
-          })
-          .catch(function(error) {
-            res.send(false)
-          })
-      } else if (show.press_release !== null) {
-        let possibleNames = extractPossibleNames(show.press_release)
-        let axiosCalls = getGqsCalls(possibleNames)
-        Promise.all(axiosCalls)
-          .then(function(results) {
-            let names = checkForArtists(possibleNames, results)
-
-            let artists = [];
-            for (let name of names) {
-
-              let artist = {
-                first_name: name.split(' ')[0],
-                last_name: name.split(' ')[1]
-              }
-              artists.push(artist)
-            }
-            return knex.insert(artists).into('artists')
-          })
-          .then(function(result) {
             res.send(true)
           })
           .catch(function(error) {
