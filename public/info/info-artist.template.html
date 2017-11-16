@@ -1,18 +1,10 @@
-<!-- <div ng-repeat="show in $ctrl.shows"> -->
-<!-- <info-art></info-show> -->
-
-
-<!-- <p>from info-artist showArtsyId: {{$ctrl.showArtsyId}}</p> -->
 
 <div ng-repeat="artist in $ctrl.artists track by $index">
   <p class="artist-title" ng-show="artist.relevant == true && $ctrl.relevanceMode == true">{{$ctrl.strDisclaim}}{{artist.name}}</p>
   <p ng-show="artist.relevant == false && $ctrl.relevanceMode == false">{{$ctrl.strDisclaim}}{{artist.name}}</p>
-  <!-- {{artist}} -->
-  <!-- {{artist.image_urls}} -->
   <div style="margin-bottom: 0.5rem">
     <div class="img-layout">
       <div ng-repeat="image in artist.image_urls[0]">
-        <!-- <a ng-click="$ctrl.clickImg()"><img class="sample-img" src={{image}} alt="image of artist work"></a> -->
         <img class="sample-img" src={{image}} alt="image of artist work">
       </div>
     </div>
@@ -23,5 +15,5 @@
   </div>
 
   <ng-include src="'./modals/imageview.template.html'"></ng-include>
-  <!-- artist.relevant: {{artist.relevant}} currentService.relevanceMode: {{$ctrl.currentService.relevanceMode}} -->
+
 </div>

@@ -53,36 +53,17 @@
 
 
 
-
-        <!--
-        <ul class="right">
-          <div class="dropdown">
-            <button class="dropbtn">Dropdown</button>
-            <div class="dropdown-content">
-              <p ng-repeat="venue in $ctrl.currentService.venues track by $index" ng-click="$ctrl.clickVenueItem(venue.artsy_id) toggleContentVis=false" class="dropdown-item" href="#">{{venue.name}}</p>
-            </div>
-          </div>
-        </ul>
-      -->
-
       </div>
 
     </nav>
   </div>
 </header>
 <main>
-  <!-- <div style="height: 100vh; display: relative;"> -->
-
   <a class="fixtext anchor-button" ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == true">show irrelevant entries</a>
   <a class="fixtext anchor-button" ng-click="$ctrl.clickRelevanceMode()" ng-if="$ctrl.currentService.relevanceMode == false">show relevant entries</a>
 
     <div class="container" style="transform: translate(0,0); height: 100%">
-    <!-- <div class="container"> -->
-      <!-- why use ui-view here instead of just <info-venue>-->
-      <!-- <ui-view venues="venues"></ui-view> -->
-      <!-- <ui-view></ui-view> -->
       <info-venue></info-venue>
     </div>
 
-  <!-- </div> -->
 </main>

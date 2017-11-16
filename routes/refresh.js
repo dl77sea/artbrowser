@@ -58,7 +58,7 @@ let cities = {
 
 var strToken;
 var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
-// var partners = partnersSEA;
+
 
 var token;
 var shows = [];
@@ -75,36 +75,22 @@ var artistTypeRegExps = [regexAutoCompleteQueryPhotographer, regexAutoCompleteQu
 // url: strArtsyApiBaseUrl + "shows?partner_id=" + partners[i] + "&status=running",
 
 function authenticate(req, res, next) {
-  //console.log("entered authenticate")
 
   axios.post('https://api.artsy.net/api/tokens/xapp_token?client_id=4abaf180f92e4b617234&client_secret=4a7d07d8560a37d08c8683be00e3bc4a')
     .then(function(response) {
       token = response.data.token
-      // //console.log("response from authenticate: ", response.data.token);
       next()
     })
     .catch(function(error) {
-      //console.log("error from authenticate") //: ", error);
       next()
     });
 }
-/*--------------------------------------------------*/
-//refresh/allcities/venues
-//promise all
-//over cities table
-//insert venues
-
-//refresh/allvenues/shows
-//promise.all
-//over venues table
-//insert shows
 router.get('/allvenues/shows', function(req, res, next) {
   //itterate over venues
   let promiseCalls = []
   knex('venues').select('artsy_id')
     .then(function(venues) {
       for (let venue of venues) {
-        // //console.log("snarf: ", venue.artsy_id)
         let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/venue/' + venue.artsy_id + '/shows'
         let options = {
           method: 'GET',
@@ -118,8 +104,6 @@ router.get('/allvenues/shows', function(req, res, next) {
       res.send("allvenues/shows Promise.all completed")
     })
     .catch(function(error) {
-      //console.log("error from /allvenues/shows: ", error)
-
       res.send(false)
     })
 })
@@ -130,23 +114,19 @@ router.get('/allvenues/artists', function(req, res, next) {
   knex('shows').select('artsy_id')
     .then(function(shows) {
       for (let show of shows) {
-        //console.log("/allvenues/artists: shows artsy_id: ", show.artsy_id)
         let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/show/' + show.artsy_id + '/artists'
         let options = {
           method: 'GET',
           url: strUrl
         }
-        //console.log(strUrl)
         promiseCalls.push(axios(options))
       }
-      //console.log("allvenues/artists/", promiseCalls.length)
       return Promise.all(promiseCalls)
     })
     .then(function(results) {
       res.send("allvenues/artists Promise.all completed")
     })
     .catch(function(error) {
-      //console.log("error from /allvenues/shows: ", error)
       res.send(false)
     })
 })
@@ -173,7 +153,6 @@ router.get('/city/:id/venues', authenticate, function(req, res, next) {
 
   Promise.all(axiosCalls)
     .then((responses) => {
-      //console.log('this happened')
       let venues = []
       for (response of responses) {
         let venue = {
@@ -182,7 +161,6 @@ router.get('/city/:id/venues', authenticate, function(req, res, next) {
           cities_id: cities[cityId].knex_id
         }
         venues.push(venue)
-        // //console.log(response.data.name)
         knex('venues')
           .insert({
             artsy_id: response.data.id,
@@ -190,27 +168,22 @@ router.get('/city/:id/venues', authenticate, function(req, res, next) {
             cities_id: cities[cityId].knex_id
           }, '*')
           .then((result) => {
-            //console.log("knex result: ", result)
           })
           .catch((error) => {
-            //console.log("knex error from /city/:id/venues")
           })
       }
       res.send(venues)
     })
     .catch((error) => {
-      //console.log('error from get venues: ', error);
     })
 })
 
 router.get('/venue/:id/shows', authenticate, function(req, res, next) {
   let partner = req.params.id
-  //console.log("entered venue/id/shows: ", partner)
   //https://api.artsy.net/api/shows?partner_id=
   //var strArtsyApiBaseUrl = "https://api.artsy.net/api/";
   //https://api.artsy.net/api/shows?partner_id=52b78578139b2159b5000adf&status=running
   let strUrl = strArtsyApiBaseUrl + "shows?partner_id=" + partner + "&status=running"
-  //console.log("strUrl from /venue/id/shows: ", strUrl)
   let options = {
     method: 'GET',
     url: strUrl,
@@ -221,26 +194,9 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
 
   axios(options)
     .then(function(response) {
-      //console.log("this is the response from axios in venue/id/shows: ")
-      //console.log(response.data._embedded.shows.length)
       if (response.data._embedded.shows.length > 0) {
-        // //console.log("here: ", response.data._embedded.shows.length)
-        // //console.log("************")
-        // //console.log(response.data._embedded.shows)
-        //       venue_artsy_id: partner,
-        //       artsy_id: show.id,
-        //       name: show.name,
-        //       from: show.start_at,
-        //       to: show.end_at
         let shows = [];
         for (show of response.data._embedded.shows) {
-          // //console.log("************")
-          // //console.log(show.id)
-          // //console.log(show.description)
-          // //console.log(show.press_release)
-          // show.description = 'A selection of landscape paintings by Seattle artist, Philip Govedare that are derived '
-          // show.press_release = 'A selection of landscape paintings by Seattle artist, Philip Govedare that are derived from sites'
-          // //console.log("************")
           let newShow = {
             venue_artsy_id: partner,
             artsy_id: show.id,
@@ -261,7 +217,6 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
       res.send(true)
     })
     .catch(function(error) {
-      //console.log("error from axios catch on /venue/:id/shows/")
       res.send(false)
     })
 })
@@ -269,18 +224,12 @@ router.get('/venue/:id/shows', authenticate, function(req, res, next) {
 //inserts an artist(s) into artists table by artsy show id
 router.get('/show/:id/artists', authenticate, function(req, res, next) {
   var bArtistsFound = false;
-  console.log("entered /show/id/artists")
-  //console.log("entered /show/:id/artists")
   let showId = req.params.id
-  //console.log(showId)
   knex('shows').where('artsy_id', showId)
     .then(function(result) {
-      //console.log(result)
-      console.log("entered then for /show/id/artists")
       let show = result[0]
 
       if (show.name !== null) {
-        console.log("entered then for /show/id/artists on name")
         let possibleNames = extractPossibleNames(show.name)
         let axiosCalls = getGqsCalls(possibleNames)
         //Google Query Search for possible artists from possible names
@@ -499,27 +448,18 @@ router.get('/show/:id/artists', authenticate, function(req, res, next) {
             res.send(false)
           })
       } else {
-        //console.log("no names found for this show")
         res.send(false)
       }
 
     })
     .catch(function(error) {
-      //console.log("catch bad knex query from /shows/id/artists: ", error)
       res.send(error)
     })
 })
 
-// router.get('/artist/:id/images', authenticate, function(req, res, next) {
-//
-// })
-
 //check xml results from GQS for artist hits
-//return it to
 function checkForArtists(possibleNames, gqsResults) {
   numPossibleNames = possibleNames.length
-  //console.log("numPossibleNames: ", numPossibleNames)
-
   let artists = []
   for (let iPossibleName = 0; iPossibleName < numPossibleNames; iPossibleName++) {
     for (let iType = 0; iType < artistTypesToCheckFor.length; iType++) {
@@ -550,64 +490,13 @@ function getGqsCalls(possibleNames) {
         method: 'GET',
         url: strUrl,
       }
-      //console.log(strUrl)
+
       axiosCalls.push(axios(options))
     }
   }
   return axiosCalls
 }
 
-// //why must send res as an argument here but not in getShows?
-// function getArtists(shows, res) {
-//   //append possible people names to each show object in array
-//   for (show of shows) {
-//     let possiblePeopleNames = extractPossibleNames(show.name)
-//     show.name_possible_names = possiblePeopleNames
-//     possiblePeopleNames = extractPossibleNames(show.desc)
-//     show.desc_possible_names = possiblePeopleNames
-//     possiblePeopleNames = extractPossibleNames(show.press)
-//     show.press_possible_names = possiblePeopleNames
-//   }
-//
-//   //append axios calls to GQS to each show object (one array of calls per text source (show, name, desc))
-//   var axiosCalls = []
-//   for (show of shows) {
-//     //show.name_calls = appendShowNameCalls(show.name_possible_names, shows)
-//     show.desc_calls = appendShowNameCalls(show.desc_possible_names, shows)
-//     //show.press_calls = appendShowNameCalls(show.press_possible_names, shows)
-//   }
-//
-//   res.send(shows)
-//   // //check for possible artists in order of likely succinctness of list containing the show artist name(s)
-//   let AllPromises = []
-//   for (show of shows) {
-//     AllPromises.push(Promise.all(show.name_calls))
-//
-//   }
-//
-//   Promise.all(AllPromises).then((res) => {
-//     //console.log('??????', res);
-//   })
-//   // if (show.name_calls.length > 0) {
-//   //   //console.log
-//   //   Promise.all(show.name_calls).then(function(responses) {
-//   //     //check each response for artist hit
-//   //     for (response of responses) {
-//   //       //console.log(response)
-//   //       // if (isArtist(response)) {
-//   //       //   //console.log("found artist")
-//   //       // }
-//   //     }
-//   //   })
-//   // } else if (show.desc_calls.length > 0) {
-//   //
-//   // } else if (show.press_calsl.length > 0) {
-//   //
-//   // }
-//   // res.send(shows)
-// }
-//
-//
 function extractPossibleNames(str) {
   let possibleNames = [];
   //this will look for person names that are two capitalized contigious strings
@@ -642,25 +531,6 @@ function isArtist(strXml) {
 
 //get google image search source
 function getImgUrls(response) {
-  // //console.log("***from getGisSrc: ", artistObj.name)
-  // // sample GIS url: https://www.google.com/search?safe=active&q=andreas+gursky+photos&tbm=isch
-  // let strGisBaseUrl = "https://www.google.com/search?q=" //"https://www.google.com/search?safe=active&q="
-  // let strGisEndUrl = "&tbm=isch"
-  // let strUrl = strGisBaseUrl + artistObj.name.replace(' ', '+') + "+photos" + strGisEndUrl
-  // //console.log(">>>>>>", strUrl)
-  // let options = {
-  //   method: 'GET',
-  //   url: strUrl,
-  //   headers: {
-  //     // 'accept': 'text/html,application/xhtml+xml,application/xml',
-  //     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
-  //     // 'X-Xapp-Token': token
-  //   }
-  // }
-  // axios(options)
-  //   .then(function(response) {
-  //     //console.log("result from GIS axios: ", response.data)
-
   //pattern for finding start of image urls in GIS response
   let imgUrlPatRe = new RegExp('"ou":', 'g')
 
@@ -695,8 +565,6 @@ function getImgUrls(response) {
     str = unescape(str);
     return str;
   }
-  // //console.log("from getGisSrc axios.then>>>>>>>>", arrImageUrls)
-  //console.log(">>>>>>%%%%%%%%>>>>>>>>", arrImageUrls)
   return arrImageUrls;
 
 }
