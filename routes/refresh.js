@@ -92,8 +92,8 @@ router.get('/allvenues/shows', function(req, res, next) {
   knex('venues').select('artsy_id')
     .then(function(venues) {
       for (let venue of venues) {
-        // let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/venue/' + venue.artsy_id + '/shows'
-        let strUrl = 'http://localhost:5000/api/refresh/venue/' + venue.artsy_id + '/shows'
+        let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/venue/' + venue.artsy_id + '/shows'
+        // let strUrl = 'http://localhost:5000/api/refresh/venue/' + venue.artsy_id + '/shows'
         let options = {
           method: 'GET',
           url: strUrl,
@@ -109,7 +109,7 @@ router.get('/allvenues/shows', function(req, res, next) {
       res.send("allvenues/shows Promise.all completed")
     })
     .catch(function(error) {
-      res.send(false)
+      res.send(error)
     })
 })
 
@@ -120,8 +120,8 @@ router.get('/allvenues/artists', function(req, res, next) {
   knex('shows').select('artsy_id')
     .then(function(shows) {
       for (let show of shows) {
-        // let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/show/' + show.artsy_id + '/artists'
-        let strUrl = 'http://localhost:5000/api/refresh/show/' + show.artsy_id + '/artists'
+        let strUrl = 'https://dl77sea-artbrowser.herokuapp.com/api/refresh/show/' + show.artsy_id + '/artists'
+        // let strUrl = 'http://localhost:5000/api/refresh/show/' + show.artsy_id + '/artists'
         let options = {
           method: 'GET',
           url: strUrl
@@ -136,7 +136,7 @@ router.get('/allvenues/artists', function(req, res, next) {
     })
     .catch(function(error) {
       console.log("/allvenues/artists fail")
-      res.send(false)
+      res.send(error)
     })
 })
 
